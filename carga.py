@@ -155,6 +155,7 @@ def update_kpi_ingresos_mensual_ppto(cargar=False):
                 #MONTH(QRY_PPTO_DIA.date) = ((MONTH(curdate()))) AND
                 YEAR(QRY_PPTO_DIA.date) = YEAR(curdate())                
             GROUP BY
+                CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')),
                 QRY_BRANCH_OFFICES.branch_office""")
             # Ejecutar la consulta de inserción
             connection.execute(insert_query)       
