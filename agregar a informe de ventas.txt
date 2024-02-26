@@ -1,0 +1,6 @@
+agregar fichas al reporte de ventas
+
+permanencia en minutos
+flujo cantidad ticket pagados
+cant suc operativas
+

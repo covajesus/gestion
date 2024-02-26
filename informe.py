@@ -55,20 +55,16 @@ def kpi_ingresos_mes():
 # Función para generar periodos dinámicamente
 def generar_periodos(mes_actual):
    periodos = ['01-Enero','02-Febrero','03-Marzo','04-Abril','05-Mayo','06-Junio',
-              '07-Julio','08-Agosto','09-Septiembre','10-Octubre','11-Noviembre','12-Diciembre']
-               
-   # Obtener el mes actual
+              '07-Julio','08-Agosto','09-Septiembre','10-Octubre','11-Noviembre','12-Diciembre']               
+   
    ahora = datetime.datetime.now()
-   mes_actual = ahora.month
-   
-   # Reemplazar el mes actual por "Acumulado"
-   periodos[mes_actual-1] = 'Acumulado'
-   
+   mes_actual = ahora.month   
+   periodos[mes_actual-1] = 'Acumulado'   
    return periodos
 
 def qry_branch_offices():
     engine = connect_to_db()
-    query = "SELECT * FROM QRY_BRANCH_OFFICES"
+    query = "SELECT * FROM QRY_BRANCH_OFFICES WHERE status_id = 15"
     sucursales = pd.read_sql(query, engine)
     return sucursales 
 
@@ -94,8 +90,6 @@ def calcular_ticket_promedio(df, columna_ingresos, columna_tickets):
 
 def reemplazar_inf(df):
     return df.fillna(0)
-
-
 
 #Totales
 def calcular_variacion_total(df, columna_actual, columna_anterior):
@@ -150,6 +144,8 @@ def main(authenticated=False):
         df_total = kpi_ingresos_mes()
         df_sucursales = qry_branch_offices()
 
+        suma_price_hour = df_sucursales['price_hour'].sum()
+        
         ### INGRESOS ACTUAL 2024
         df_ingresos_2024 = df_total[(df_total["año"] == 2024)]
         columns_ingresos = ["periodo", "branch_office" , "ticket_number" , "Venta_Neta" , "Venta_SSS" , "Ingresos" ,"ppto" , "Ingresos_SSS" ]
@@ -240,7 +236,9 @@ def main(authenticated=False):
             sum_total_row['var_Q'] = calcular_variacion_total(df_filtrado, 'ticket_number', 'ticket_number_Ant')
             sum_total_row['desv'] = calcular_desviacion_total(df_filtrado, 'Ingresos_Act', 'Presupuesto')
             sum_total_row['ticket_prom_act'] = calcular_ticket_total(df_filtrado, 'Ingresos_Act', 'ticket_number')
-            sum_total_row['ticket_prom_ant'] = calcular_ticket_total(df_filtrado, 'Ingresos_Ant', 'ticket_number_Ant')       
+            sum_total_row['ticket_prom_ant'] = calcular_ticket_total(df_filtrado, 'Ingresos_Ant', 'ticket_number_Ant')      
+
+                    
 
             df_filtrado = df_filtrado.append(sum_total_row, ignore_index=True)
 
@@ -259,6 +257,17 @@ def main(authenticated=False):
         var_sss_formatted = sum_total_row['var_SSS'] 
         desv_formatted = sum_total_row['desv']
         ticket_promedio_formatted = format_currency(sum_total_row['ticket_prom_act'])
+        num_sucursales = df_filtrado['sucursal'].nunique()
+        
+        flujo = format_currency(sum_total_row['ticket_number'])
+
+        # Obtener Calculos para Permanencia
+        venta_hora_promedio = suma_price_hour / num_sucursales
+        #st.write(venta_hora_promedio)
+        permanencia = str(round((sum_total_row['ticket_prom_act'] / venta_hora_promedio) * 60, )) + " Min"
+
+
+        
 
         
         #INDICADORES EN CARD METRIC
@@ -279,6 +288,15 @@ def main(authenticated=False):
             ui.metric_card(title="DESVIACION %", content=desv_formatted,  key="card5")           
         with col6:
             ui.metric_card(title="TICKET PROM", content=ticket_promedio_formatted,  key="card6")    
+
+        #Tercera Fila                
+        col7, col8, col9 = st.columns(3)
+        with col7:
+            ui.metric_card(title="N° SUCURSALES", content=num_sucursales,  key="card7")            
+        with col8:
+            ui.metric_card(title="FLUJO", content=flujo,  key="card8")           
+        with col9:
+            ui.metric_card(title="PERMANENCIA", content=permanencia,  key="card9")    
             
         
         # Muestra el DataFrame

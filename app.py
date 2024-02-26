@@ -5,6 +5,7 @@ import informe
 import dtes
 import depositos
 import carga
+import dotacion
 
 
 # Agregar una variable de estado para el estado de autenticación
@@ -67,7 +68,7 @@ def main():
     elif st.session_state.authenticated:
         menu_option = None
         st.sidebar.title("Menú")
-        menu_option = st.sidebar.selectbox("Selecciona un informe", ["Informe de ventas", "Informe de abonados", "Informe de depositos", "Cargas"])        
+        menu_option = st.sidebar.selectbox("Selecciona un informe", ["Informe de ventas", "Informe de abonados", "Informe de depositos", "Cargas", "Informe de dotaciones"])        
 
         try:
             if menu_option == "Informe de ventas":
@@ -80,6 +81,9 @@ def main():
 
             elif menu_option == "Cargas":
                 carga.main(authenticated=st.session_state.authenticated)
+
+            elif menu_option == "Informe de dotaciones":
+                dotacion.main(authenticated=st.session_state.authenticated)
 
         except Exception as e:
             st.success("Por favor inicia sesión primero")
