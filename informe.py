@@ -266,8 +266,7 @@ def main(authenticated=False):
         #st.write(venta_hora_promedio)
         permanencia = str(round((sum_total_row['ticket_prom_act'] / venta_hora_promedio) * 60, )) + " Min"
 
-
-        
+     
 
         
         #INDICADORES EN CARD METRIC

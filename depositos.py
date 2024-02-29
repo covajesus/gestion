@@ -28,7 +28,7 @@ def kpi_recaudacion_dia():
     collections.special_cashier = 0 AND
     cashiers.cashier_type_id <> 3 AND
 	branch_offices.status_id = 15 AND
-	DAY(collections.created_at)< (DAY(CURDATE())) AND
+	DAY(collections.created_at)< (DAY(CURDATE()-1)) AND
 	YEAR(collections.created_at ) = YEAR(curdate()) 
     GROUP BY
     collections.created_at, 

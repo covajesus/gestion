@@ -54,7 +54,6 @@ def update_kpi_ingresos_mensual_act(cargar=False):
                 #DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) <= (DAY(CURDATE())-1) AND
                 #MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate())-1)) AND
                 YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())
-                AND QRY_BRANCH_OFFICES.branch_office = 'UNIMARC EL PAMPINO'
             GROUP BY 
                 DM_PERIODO.Periodo,
                 DM_PERIODO.period,
