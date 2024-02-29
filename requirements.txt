@@ -31,3 +31,5 @@ Faker==19.2.0
 colorama==0.4.6
 altair==5.0.1
 mysql-connector-python==8.3.0
+sklearn-model==0.0.6
+Calendar==1.11.4
