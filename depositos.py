@@ -17,22 +17,23 @@ def kpi_recaudacion_dia():
     engine = connect_to_db()
     query = """
     SELECT
-    date_format(`collections`.`created_at`,'%Y-%m-%d') AS Fecha,
+    DATE_FORMAT(`collections`.`created_at`, '%Y-%m-%d') AS Fecha,
     collections.branch_office_id AS branch_office_id, 	
-    sum(collections.gross_amount) AS recaudacion	
-    FROM collections LEFT JOIN cashiers
-    ON collections.cashier_id = cashiers.cashier_id
-    LEFT JOIN branch_offices
-    ON collections.branch_office_id = branch_offices.branch_office_id
+    SUM(collections.gross_amount) AS recaudacion	
+    FROM collections
+    LEFT JOIN
+    cashiers ON collections.cashier_id = cashiers.cashier_id
+    LEFT JOIN
+    branch_offices ON collections.branch_office_id = branch_offices.branch_office_id
     WHERE
-    collections.special_cashier = 0 AND
-    cashiers.cashier_type_id <> 3 AND
-	branch_offices.status_id = 15 AND
-	DAY(collections.created_at)< (DAY(CURDATE()-1)) AND
-	YEAR(collections.created_at ) = YEAR(curdate()) 
+        collections.special_cashier = 0 AND
+        cashiers.cashier_type_id <> 3 AND
+        branch_offices.status_id = 15 AND
+        collections.created_at < CURDATE()-1 AND
+        YEAR(collections.created_at) = YEAR(CURDATE())
     GROUP BY
-    collections.created_at, 
-    collections.branch_office_id   
+        DATE_FORMAT(collections.created_at, '%Y-%m-%d'),
+        collections.branch_office_id; 
     """
     df_recaudacion = pd.read_sql(query, engine)
     # Convertir la columna "Fecha" a tipo datetime
@@ -52,11 +53,12 @@ def kpi_deposito_dia():
     LEFT JOIN QRY_BRANCH_OFFICES
     ON deposits.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
     WHERE 	
-    DAY(deposits.collection_date) < (DAY(CURDATE())) AND
-	YEAR(deposits.collection_date ) = YEAR(curdate()) AND
+    deposits.collection_date < CURDATE() AND
+    #DAY(deposits.collection_date) <= (DAY(CURDATE())) AND
+	  YEAR(deposits.collection_date ) = YEAR(curdate()) AND
 	QRY_BRANCH_OFFICES.status_id = 15 
     GROUP BY
-    deposits.collection_date, 
+		DATE_FORMAT(deposits.collection_date, '%Y-%m-%d'),
     deposits.branch_office_id
     """
     df_deposito = pd.read_sql(query, engine)
@@ -252,3 +254,4 @@ def main(authenticated=False):
 
 if __name__ == "__main__":
     main()   
+

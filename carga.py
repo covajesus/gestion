@@ -320,10 +320,11 @@ def main(authenticated=False):
     else:
         st.title("CARGA ETL")        
         with st.form(key='data_form'):
-                st.write("Formulario de Cargas ETL")
-                periodo = st.selectbox("Selecciona el periodo", ["Acumulado", "Mensual"])
-                version = st.selectbox("Selecciona la versión", ["Actual", "Año Anterior", "Presupuesto"])
-                cargar_button = st.form_submit_button("Cargar")
+            st.write("Formulario de Cargas ETL")
+            periodo = st.selectbox("Selecciona el periodo", ["Acumulado", "Mensual"])
+            version = st.selectbox("Selecciona la versión", ["Actual", "Año Anterior", "Presupuesto"])
+            cargar_button = st.form_submit_button("Cargar")
+            rerun_button = st.button('Eliminar caché y rerun')
                 
 
     if cargar_button:
@@ -341,6 +342,8 @@ def main(authenticated=False):
                         update_kpi_ingresos_acumulado_ant(cargar=True)
                     elif version == "Presupuesto":
                         update_kpi_ingresos_acumulado_ppto(cargar=True)
+    if rerun_button:       
+        st.experimental_rerun()
     
 if __name__ == "__main__":
     main()   

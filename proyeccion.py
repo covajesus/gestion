@@ -6,6 +6,7 @@ from datetime import datetime
 from sklearn.linear_model import LinearRegression
 import calendar
 
+
 # Conexión a la base de datos MySQL
 def connect_to_db():
     db_config = {
