@@ -31,4 +31,4 @@ Faker==19.2.0
 colorama==0.4.6
 altair==5.0.1
 mysql-connector-python==8.3.0
-scikit-learn==1.4.1
+scikit-learn==1.4.0

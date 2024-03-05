@@ -70,7 +70,7 @@ def update_kpi_ingresos_mensual_ant(cargar=False):
     with engine.connect() as connection:        
         if cargar:
             # Consulta de eliminación
-            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2023' and metrica = 'ingresos' AND periodo != 'Acumulado'")
+            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' and metrica = 'ingresos' AND periodo != 'Acumulado'")
             # Ejecutar la consulta de eliminación
             connection.execute(delete_query)      
             # Consulta de inserción
@@ -219,7 +219,7 @@ def update_kpi_ingresos_acumulado_ant(cargar=False):
     with engine.connect() as connection:        
         if cargar:
             # Consulta de eliminación
-            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2023' AND Periodo = 'Acumulado' and metrica = 'ingresos'")
+            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos'")
             # Ejecutar la consulta de eliminación
             connection.execute(delete_query)      
             # Consulta de inserción
