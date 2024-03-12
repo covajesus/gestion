@@ -68,7 +68,7 @@ def generar_periodos(mes_actual):
 
 def qry_branch_offices():
     engine = connect_to_db()
-    query = "SELECT * FROM QRY_BRANCH_OFFICES"
+    query = "SELECT * FROM QRY_BRANCH_OFFICES WHERE status_id = 15"
     sucursales = pd.read_sql(query, engine)
     return sucursales 
 
@@ -149,6 +149,7 @@ def main(authenticated=False):
         st.title("INFORME DE VENTAS")
         df_total = kpi_ingresos_mes()
         df_sucursales = qry_branch_offices()
+        suma_price_hour = df_sucursales['price_hour'].sum()
 
         ### INGRESOS ACTUAL 2024
         df_ingresos_2024 = df_total[(df_total["año"] == 2024)]
@@ -261,7 +262,12 @@ def main(authenticated=False):
         ticket_promedio_formatted = format_currency(sum_total_row['ticket_prom_act'])
         num_sucursales = df_filtrado['sucursal'].nunique()
         flujo = format_currency(sum_total_row['ticket_number'])
-        #flujo = df_filtrado[df_filtrado['año'] == 2024]['ticket_number'].sum()
+        flujo = format_currency(sum_total_row['ticket_number'])
+
+        # Obtener Calculos para Permanencia
+        venta_hora_promedio = suma_price_hour / num_sucursales
+        #st.write(venta_hora_promedio)
+        permanencia = str(round((sum_total_row['ticket_prom_act'] / venta_hora_promedio) * 60, )) + " Min"
 
         
         #INDICADORES EN CARD METRIC
@@ -290,7 +296,7 @@ def main(authenticated=False):
         with col8:
             ui.metric_card(title="FLUJO", content=flujo,  key="card8")           
         with col9:
-            ui.metric_card(title="PERMANENCIA", content=ticket_promedio_formatted,  key="card9")    
+            ui.metric_card(title="PERMANENCIA", content=permanencia,  key="card9")    
             
         
         # Muestra el DataFrame

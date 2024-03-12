@@ -166,9 +166,7 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
     with engine.connect() as connection:
         if cargar:
             # Consulta de eliminación
-            delete_query = text("""
-                DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos'
-            """)
+            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos'")
             # Ejecutar la consulta de eliminación
             connection.execute(delete_query)  
             # INSERTA INGRESOS MENSUALES AÑO ANTERIOR ACUMULADO MES
@@ -208,8 +206,7 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
                 DM_PERIODO.`Año`,
                 QRY_BRANCH_OFFICES.branch_office
             ORDER BY
-                QRY_INGRESOS_TOTALES_PBI.date ASC                           
-            """)
+                QRY_INGRESOS_TOTALES_PBI.date ASC""")
             # Ejecutar la consulta de inserción
             connection.execute(insert_query)           
             st.write("Ingresos Actual Acumulado, Cargados con exito.")
