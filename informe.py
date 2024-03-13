@@ -73,33 +73,29 @@ def qry_branch_offices():
     sucursales = pd.read_sql(query, engine)
     return sucursales 
 
-#def format_currency(value):
-#    return "${:,.0f}".format(value)
-
 def format_currency(value):
-    # Establecemos la convención de Chile
-    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
-    formatted_value = locale.currency(value, grouping=True, symbol=True, international=False)
-    return formatted_value
+    return "${:,.0f}".format(value)
 
-#def format_percentage(value):
-#    return "{:.2f}%".format(value)
-
-
+#def format_currency(value):
+#    # Establecemos la convención de Chile
+#    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
+#    formatted_value = locale.currency(value, grouping=True, symbol=True, international=False)
+#    return formatted_value
 
 def format_percentage(value):
-    # Establecemos la convención de Chile
-    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
-    formatted_value = locale.format("%.2f%%", value, grouping=True)
-    return formatted_value
+    return "{:.2f}%".format(value)
+
+
+
+#def format_percentage(value):
+#    # Establecemos la convención de Chile
+#    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
+#    formatted_value = locale.format("%.2f%%", value, grouping=True)
+#    return formatted_value
 
 
 def format_valor(value):
     return "{:,.0f}".format(value)
-
-
-
-
 
 
 def calcular_variacion(df, columna_actual, columna_anterior):
