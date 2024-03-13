@@ -5,6 +5,7 @@ import streamlit_shadcn_ui as ui
 import plotly.express as px
 import datetime
 import calendar
+import locale
 from colorama import Fore, Style
 
  
@@ -72,12 +73,27 @@ def qry_branch_offices():
     sucursales = pd.read_sql(query, engine)
     return sucursales 
 
+#def format_currency(value):
+#    return "${:,.0f}".format(value)
+
 def format_currency(value):
-    return "${:,.0f}".format(value)
+    # Establecemos la convención de Chile
+    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
+    formatted_value = locale.currency(value, grouping=True, symbol=True, international=False)
+    return formatted_value
+
+#def format_percentage(value):
+#    return "{:.2f}%".format(value)
 
 def format_percentage(value):
-    return "{:.2f}%".format(value)
+    # Establecemos la convención de Chile
+    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
+    formatted_value = locale.format("%.2f%%", value, grouping=True)
+    return formatted_value
 
+
+def format_valor(value):
+    return "{:,.0f}".format(value)
 
 def calcular_variacion(df, columna_actual, columna_anterior):
     df = df.fillna(0)    
@@ -116,18 +132,7 @@ def calcular_ticket_total(df, columna_ingresos, columna_ticket):
     ticket_prom = (total_actual / total_ticket )
     return ticket_prom
 
-def formato_condicional(valor):
-    try:
-        valor = float(valor)
-        if valor < 0:
-            return f"{Fore.RED}{valor:.2f}%{Style.RESET_ALL}"
-        elif valor > 0:
-            return f"{Fore.BLACK}{valor:.2f}%{Style.RESET_ALL}"
-        else:
-            return f"{valor:.2f}%"
-    except ValueError:
-        # Manejar el caso en el que el valor no es un número
-        return str(valor)
+
 
 # Función para generar periodos dinámicamente
 def generar_periodos(mes_actual):
@@ -174,6 +179,7 @@ def main(authenticated=False):
                                                 "Ingresos_SSS" : "Ingresos_SSS_Ant"})    
         
         df_ingresos = df_ingresos_act.merge(df_ingresos_ant, on=["branch_office", "periodo"], how="outer", suffixes=('_Act', '_Ant'))
+        
         df_ingresos = df_ingresos.fillna(0)  
         df_ingresos = df_ingresos.groupby(["periodo", "branch_office"]).first().reset_index()    
         
@@ -261,12 +267,10 @@ def main(authenticated=False):
         desv_formatted = sum_total_row['desv']
         ticket_promedio_formatted = format_currency(sum_total_row['ticket_prom_act'])
         num_sucursales = df_filtrado['sucursal'].nunique()
-        flujo = format_currency(sum_total_row['ticket_number'])
-        flujo = format_currency(sum_total_row['ticket_number'])
-
+        flujo = format_valor(sum_total_row['ticket_number'])
+        
         # Obtener Calculos para Permanencia
         venta_hora_promedio = suma_price_hour / num_sucursales
-        #st.write(venta_hora_promedio)
         permanencia = str(round((sum_total_row['ticket_prom_act'] / venta_hora_promedio) * 60, )) + " Min"
 
         
@@ -321,16 +325,11 @@ def main(authenticated=False):
         df_grouped = df_grouped[df_grouped['periodo'] != 'Total'] 
         df_grouped = df_grouped.sort_values('periodo')      
 
-        
-        #st.write(df_grouped)
-        #st.write(periodos)
 
         df_grafico = pd.DataFrame()
         df_grafico['periodo'] = periodos
         df_grafico = pd.merge(df_grafico, df_grouped, on='periodo', how='left')
-        df_grafico = df_grafico.fillna(0)
-
-       
+        df_grafico = df_grafico.fillna(0)       
 
         # Gráfico de barras agrupadas        
         fig = px.bar(df_grafico, x='periodo', y=['Ingresos_Act', 'Ingresos_Ant', 'Presupuesto'],
