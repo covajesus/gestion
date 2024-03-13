@@ -85,6 +85,8 @@ def format_currency(value):
 #def format_percentage(value):
 #    return "{:.2f}%".format(value)
 
+
+
 def format_percentage(value):
     # Establecemos la convención de Chile
     locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
@@ -94,6 +96,11 @@ def format_percentage(value):
 
 def format_valor(value):
     return "{:,.0f}".format(value)
+
+
+
+
+
 
 def calcular_variacion(df, columna_actual, columna_anterior):
     df = df.fillna(0)    
