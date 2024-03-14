@@ -16,54 +16,24 @@ def connect_to_db():
 def kpi_recaudacion_dia():
     engine = connect_to_db()
     query = """
-    SELECT
-    DATE_FORMAT(`collections`.`created_at`, '%Y-%m-%d') AS Fecha,
-    collections.branch_office_id AS branch_office_id, 	
-    SUM(collections.gross_amount) AS recaudacion	
-    FROM collections
-    LEFT JOIN
-    cashiers ON collections.cashier_id = cashiers.cashier_id
-    LEFT JOIN
-    branch_offices ON collections.branch_office_id = branch_offices.branch_office_id
-    WHERE
-        collections.special_cashier = 0 AND
-        cashiers.cashier_type_id <> 3 AND
-        branch_offices.status_id = 15 AND
-        collections.created_at < CURDATE()-1 AND
-        YEAR(collections.created_at) = YEAR(CURDATE())
-    GROUP BY
-        DATE_FORMAT(collections.created_at, '%Y-%m-%d'),
-        collections.branch_office_id; 
-    """
+    SELECT 
+	KPI_DTES_RECAUDACION_DIA.Fecha, 
+	KPI_DTES_RECAUDACION_DIA.branch_office_id, 
+	KPI_DTES_RECAUDACION_DIA.recaudacion
+    FROM KPI_DTES_RECAUDACION_DIA"""
     df_recaudacion = pd.read_sql(query, engine)
-    # Convertir la columna "Fecha" a tipo datetime
-    df_recaudacion['Fecha'] = pd.to_datetime(df_recaudacion['Fecha'])
+    #st.table(df_recaudacion)
     return df_recaudacion
 
 def kpi_deposito_dia():
     engine = connect_to_db()
-    query = """
-    SELECT
-    date_format(deposits.collection_date,'%Y-%m-%d') AS Fecha, 
-    deposits.branch_office_id AS branch_office_id, 
-    sum(deposits.deposit_amount) AS deposito	
-    FROM deposits 
-    LEFT JOIN statuses
-    ON deposits.status_id = statuses.status_id
-    LEFT JOIN QRY_BRANCH_OFFICES
-    ON deposits.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
-    WHERE 	
-    deposits.collection_date < CURDATE() AND
-    #DAY(deposits.collection_date) <= (DAY(CURDATE())) AND
-	  YEAR(deposits.collection_date ) = YEAR(curdate()) AND
-	QRY_BRANCH_OFFICES.status_id = 15 
-    GROUP BY
-		DATE_FORMAT(deposits.collection_date, '%Y-%m-%d'),
-    deposits.branch_office_id
-    """
+    query = """SELECT
+	KPI_DTES_DEPOSITOS_DIA.Fecha, 
+	KPI_DTES_DEPOSITOS_DIA.branch_office_id, 
+	KPI_DTES_DEPOSITOS_DIA.deposito
+    FROM KPI_DTES_DEPOSITOS_DIA"""
     df_deposito = pd.read_sql(query, engine)
-    # Convertir la columna "Fecha" a tipo datetime
-    df_deposito['Fecha'] = pd.to_datetime(df_deposito['Fecha'])
+    #st.table(df_deposito)
     return df_deposito
 
 def qry_branch_offices():
