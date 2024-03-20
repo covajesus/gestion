@@ -173,7 +173,7 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
             insert_query = text("""
             INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
             SELECT
-            'Acumulado' as Periodo,
+            DM_PERIODO.Periodo,
             DM_PERIODO.period,
             DM_PERIODO.`Año`,
             QRY_BRANCH_OFFICES.branch_office, 
@@ -197,7 +197,7 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
             ON QRY_INGRESOS_TOTALES_PBI.date = DM_PERIODO.Fecha
             WHERE	
                 QRY_BRANCH_OFFICES.status_id = 15 AND
-                DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) < (DAY(CURDATE())) AND
+                DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) <= (DAY(CURDATE())-1) AND
                 MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate()))) AND
                 YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())
             GROUP BY 
@@ -222,7 +222,7 @@ def update_kpi_ingresos_acumulado_ant(cargar=False):
             # Consulta de inserción
             insert_query = text("""              
             INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
-            SELECT
+            SELECT  
             'Acumulado' as Periodo,
             DM_PERIODO.period,
             DM_PERIODO.`Año`,
@@ -238,25 +238,25 @@ def update_kpi_ingresos_acumulado_ant(cargar=False):
             SUM(((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank) * (QRY_IND_SSS.`value`))) AS Venta_SSS, 
             SUM(((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank + QRY_INGRESOS_TOTALES_PBI.abonados) * (QRY_IND_SSS.`value`))) AS Ingresos_SSS,
             'ingresos' as metrica
-            FROM QRY_INGRESOS_TOTALES_PBI
+        FROM QRY_INGRESOS_TOTALES_PBI
             LEFT JOIN QRY_BRANCH_OFFICES
             ON QRY_INGRESOS_TOTALES_PBI.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
             LEFT JOIN QRY_IND_SSS
             ON QRY_INGRESOS_TOTALES_PBI.clave = QRY_IND_SSS.clave
             LEFT JOIN DM_PERIODO
             ON QRY_INGRESOS_TOTALES_PBI.date = DM_PERIODO.Fecha
-            WHERE	
-                QRY_BRANCH_OFFICES.status_id = 15 AND
-                DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) < (DAY(CURDATE())) AND
-                MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate()))) AND
-                YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())-1
-            GROUP BY 
-                DM_PERIODO.Periodo,
-                DM_PERIODO.period,
-                DM_PERIODO.`Año`,
-                QRY_BRANCH_OFFICES.branch_office
-            ORDER BY
-                QRY_INGRESOS_TOTALES_PBI.date ASC""")
+        WHERE	
+	        QRY_BRANCH_OFFICES.status_id = 15 AND
+	        DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) < (DAY(CURDATE())) AND
+	        MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate()))) AND
+	        YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())-1
+        GROUP BY 
+	        DM_PERIODO.Periodo,
+	        DM_PERIODO.period,
+	        DM_PERIODO.`Año`,
+	        QRY_BRANCH_OFFICES.branch_office
+        ORDER BY
+	        QRY_INGRESOS_TOTALES_PBI.date ASC""")
             # Ejecutar la consulta de inserción
             connection.execute(insert_query)       
             st.write("Ingresos Anterior Acumulado, Cargados con exito.")
@@ -275,7 +275,7 @@ def update_kpi_ingresos_acumulado_ppto(cargar=False):
             insert_query = text("""INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
             SELECT
             'Acumulado' AS periodo,
-            CONCAT(YEAR(QRY_PPTO_DIA.date),'-',LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')) AS period,
+            CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')) AS period,
             YEAR(QRY_PPTO_DIA.date) AS año,
             QRY_BRANCH_OFFICES.branch_office AS branch_office,
             '0' AS `value`,
@@ -284,7 +284,7 @@ def update_kpi_ingresos_acumulado_ppto(cargar=False):
             '0' AS `net_amount`,
             '0' AS transbank,
             '0' AS Venta_Neta,
-            '0' AS Ingresos,
+	    	'0' AS Ingresos,
             SUM(QRY_PPTO_DIA.ppto) AS ppto,
             '0' AS Venta_SSS,
             '0' AS Ingresos_SSS,
@@ -294,10 +294,11 @@ def update_kpi_ingresos_acumulado_ppto(cargar=False):
             ON QRY_PPTO_DIA.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
             WHERE 
             DAY(QRY_PPTO_DIA.date) < DAY(CURDATE()) AND
-            MONTH(QRY_PPTO_DIA.date) = MONTH(CURDATE()) AND
+             MONTH(QRY_PPTO_DIA.date) = MONTH(CURDATE()) AND
             YEAR(QRY_PPTO_DIA.date) = YEAR(CURDATE())
             GROUP BY
-            QRY_BRANCH_OFFICES.branch_office""")
+            QRY_BRANCH_OFFICES.branch_office
+            """)
             # Ejecutar la consulta de inserción
             connection.execute(insert_query)       
             st.write("Ingresos Presupuesto Acumulado, Cargados con exito.")
@@ -373,8 +374,8 @@ def update_abonados(cargar=False):
 	            dtes.dte_id AS dte_id,
 	            DATE_FORMAT(dtes.created_at,"%Y-%m-%d") AS date,
 	            dtes.rut AS rut,
-	            users.`names` AS cliente,
-	            CONCAT_WS(" - ",dtes.rut,users.`names`)as razon_social,
+                UPPER(users.`names`) AS cliente,
+                CONCAT_WS(" - ",dtes.rut,UPPER(users.`names`))as razon_social,
 	            dtes.folio AS folio,
 	            dtes.branch_office_id AS branch_office_id,
 	            dtes.dte_type_id AS dte_type_id,
