@@ -16,35 +16,7 @@ def connect_to_db():
 
 def kpi_dtes_mensuales():
     engine = connect_to_db()
-    query = """
-    SELECT
-	dtes.dte_id AS dte_id, 
-	DATE_FORMAT(dtes.created_at,"%Y-%m-%d") AS date, 
-	dtes.rut AS rut, 
-	users.`names` AS cliente, 
-	CONCAT_WS(" - ",dtes.rut,users.`names`)as razon_social,
-	dtes.folio AS folio, 
-	dtes.branch_office_id AS branch_office_id, 
-	dtes.dte_type_id AS dte_type_id, 
-	dtes.status_id AS status_id, 
-	dtes.amount AS amount, 
-	dtes.period AS period, 
-	dtes.`comment` AS `comment`,
-	statuses.`status` AS `status`, 
-	dtes.chip_id AS chip_id
-    FROM dtes
-    LEFT JOIN customers ON dtes.rut = customers.rut
-    LEFT JOIN users ON customers.rut = users.rut
-    LEFT JOIN statuses ON dtes.status_id = statuses.status_id
-    WHERE
-	dtes.rut <> '66666666-6' AND	
-	dtes.dte_version_id = 1 AND
-	dtes.status_id > 17 AND
-	dtes.status_id < 24 AND
-	users.rol_id = 14 AND
-	YEAR(dtes.created_at) = (YEAR(curdate())) AND
-	MONTH(dtes.created_at) >= ((MONTH(curdate())-1))
-    """
+    query = "SELECT * FROM TP_ABONADOS"
     df_dtes = pd.read_sql(query, engine)
     #st.table(df_ingresos)
     return df_dtes
@@ -91,6 +63,7 @@ def main(authenticated=False):
                                             "names": "supervisor",
                                             "dte_type_id" : "tipo",
                                             "amount": "monto"})
+        dte_final['comment'] = dte_final['comment'].astype(str)
         
         # Asignar las columnas 'contador' y 'link' directamente a dte_final
         dte_final['contador'] = dte_final['tipo'].apply(lambda x: 1 if x in [33, 39] else 1)

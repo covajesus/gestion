@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import json
 import informe
 import dtes
 import depositos
@@ -89,7 +88,7 @@ def main():
             st.success("Por favor inicia sesión primero")
             st.error(e)
             st.session_state.authenticated = False
-            st.experimental_rerun()
+            st.rerun()
 
         
 if __name__ == "__main__":

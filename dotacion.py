@@ -3,8 +3,6 @@ import pandas as pd
 from sqlalchemy import create_engine
 import streamlit_shadcn_ui as ui
 import requests
-import json
-
 
 # Conexión a la base de datos MySQL
 def connect_to_db():
@@ -37,8 +35,6 @@ def nomina_trabajadores():
     return nomina_trabajadores
 
 df_dotacion = nomina_trabajadores()
-
-
 BASE_EMPLOYEES = 'https://apijis.com/employees/full_details'
 
 

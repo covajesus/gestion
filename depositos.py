@@ -94,7 +94,6 @@ def main(authenticated=False):
                                     "deposito": "depositado"
                                     }, inplace=True)
 
-
         ultimo_mes = df_estatus['periodo'].max()
         # Crear Filtros en el sidebar
         st.sidebar.title('Filtros Disponibles')
@@ -191,7 +190,6 @@ def main(authenticated=False):
             # Mostrar el DataFrame agrupado con "sucursal" como índice y la fila "Total"
         st.dataframe(df_agrupado_filtrado)
 
-
         # Calcular los totales de las columnas numéricas en df_filtrado
         totales = df_filtrado[['recaudado', 'depositado', 'diferencia']].sum()
 
@@ -215,11 +213,8 @@ def main(authenticated=False):
         df_nuevo['diferencia'] = df_nuevo['diferencia'].apply(format_currency)
 
         df_nuevo_filtrado = df_nuevo
-
         # Mostrar el DataFrame con la fila 'Total'
-        st.dataframe(df_nuevo_filtrado)
-
-        
+        st.dataframe(df_nuevo_filtrado)       
 
 
 if __name__ == "__main__":

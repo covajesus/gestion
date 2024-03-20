@@ -40,8 +40,6 @@ def QRY_INGRESOS_TOTALES_PBI():
     df_historico = pd.read_sql(query, engine, parse_dates=['date'])
     return df_historico
 
-
-
 df_historico = QRY_INGRESOS_TOTALES_PBI()
 
 # Agrupa los datos por mes, día y sucursal y calcula la suma de las ventas

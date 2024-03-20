@@ -4,11 +4,8 @@ from sqlalchemy import create_engine
 import streamlit_shadcn_ui as ui
 import plotly.express as px
 import datetime
-import calendar
-import locale
 from colorama import Fore, Style
 
- 
 # Conexión a la base de datos MySQL
 def connect_to_db():
     db_config = {
@@ -63,8 +60,7 @@ def generar_periodos(mes_actual):
    mes_actual = ahora.month
    
    # Reemplazar el mes actual por "Acumulado"
-   periodos[mes_actual-1] = 'Acumulado'
-   
+   periodos[mes_actual-1] = 'Acumulado'   
    return periodos
 
 def qry_branch_offices():
@@ -76,27 +72,11 @@ def qry_branch_offices():
 def format_currency(value):
     return "${:,.0f}".format(value)
 
-#def format_currency(value):
-#    # Establecemos la convención de Chile
-#    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
-#    formatted_value = locale.currency(value, grouping=True, symbol=True, international=False)
-#    return formatted_value
-
 def format_percentage(value):
     return "{:.2f}%".format(value)
 
-
-
-#def format_percentage(value):
-#    # Establecemos la convención de Chile
-#    locale.setlocale(locale.LC_ALL, 'es_CL.UTF-8')
-#    formatted_value = locale.format("%.2f%%", value, grouping=True)
-#    return formatted_value
-
-
 def format_valor(value):
     return "{:,.0f}".format(value)
-
 
 def calcular_variacion(df, columna_actual, columna_anterior):
     df = df.fillna(0)    
@@ -113,7 +93,6 @@ def calcular_ticket_promedio(df, columna_ingresos, columna_tickets):
 
 def reemplazar_inf(df):
     return df.fillna(0)
-
 
 
 #Totales
@@ -135,8 +114,6 @@ def calcular_ticket_total(df, columna_ingresos, columna_ticket):
     ticket_prom = (total_actual / total_ticket )
     return ticket_prom
 
-
-
 # Función para generar periodos dinámicamente
 def generar_periodos(mes_actual):
    periodos = ['01-Enero','02-Febrero','03-Marzo','04-Abril','05-Mayo','06-Junio',
@@ -146,9 +123,6 @@ def generar_periodos(mes_actual):
 
 def main(authenticated=False):    
     if not authenticated:
-        #st.error("Necesitas autenticarte primero")
-        #st.error("Necesitas autenticarte")
-        #st.stop()
         raise Exception("No autenticado, Necesitas autenticarte primero")
         #return
         #st.error("Necesitas autenticarte primero")
@@ -217,8 +191,7 @@ def main(authenticated=False):
         df_inicial_display = df_general[columns_to_show_in_visualization].copy()    
         periodos_2024_con_datos = df_total[df_total['año'] == 2024]['periodo'].unique()
         ultimo_periodo = periodos_2024_con_datos[-1]
-        periodos_seleccionados_por_defecto = ultimo_periodo
-        
+        periodos_seleccionados_por_defecto = ultimo_periodo        
 
         st.sidebar.title('Filtros Disponibles')    
         periodos = df_general['periodo'].unique()
@@ -226,8 +199,7 @@ def main(authenticated=False):
         supervisor_seleccionados = st.sidebar.multiselect('Seleccione Supervisores:', supervisors)
         branch_offices = df_general[df_general['supervisor'].isin(supervisor_seleccionados)]['sucursal'].unique()
         branch_office_seleccionadas = st.sidebar.multiselect('Seleccione Sucursales:', branch_offices)
-        periodos_seleccionados = st.sidebar.multiselect('Seleccione Periodo:', periodos, default=periodos_seleccionados_por_defecto)
-        
+        periodos_seleccionados = st.sidebar.multiselect('Seleccione Periodo:', periodos, default=periodos_seleccionados_por_defecto)        
 
         if periodos_seleccionados or branch_office_seleccionadas or supervisor_seleccionados:
             df_filtrado = df_general[
@@ -236,12 +208,13 @@ def main(authenticated=False):
                 (df_general['sucursal'].isin(branch_office_seleccionadas) if branch_office_seleccionadas else True)]
             df_filtrado = df_filtrado[columns_to_show]
             columns_to_exclude = ['periodo', 'sucursal', 'supervisor', 'ticket_prom_act', 'ticket_prom_ant', 'var_Q', 'var_SSS', 'desv']
-    
                         
             # Calcula la suma de las columnas seleccionadas  
             sum_total = df_filtrado.drop(columns=columns_to_exclude).sum()
             sum_total_row = pd.Series({'periodo': 'Total', 'sucursal': '', 'supervisor': ''})
-            sum_total_row = sum_total_row.append(sum_total)     
+            
+            #sum_total_row = sum_total_row.append(sum_total)  
+            sum_total_row = pd.concat([sum_total_row, sum_total])   
 
             # Asigna los valores calculados a sum_total_row
             sum_total_row['var'] = calcular_variacion_total(df_filtrado, 'Ingresos_Act', 'Ingresos_Ant')
@@ -252,7 +225,8 @@ def main(authenticated=False):
             sum_total_row['ticket_prom_act'] = calcular_ticket_total(df_filtrado, 'Ingresos_Act', 'ticket_number')
             sum_total_row['ticket_prom_ant'] = calcular_ticket_total(df_filtrado, 'Ingresos_Ant', 'ticket_number_Ant')       
 
-            df_filtrado = df_filtrado.append(sum_total_row, ignore_index=True)
+            #df_filtrado = df_filtrado.append(sum_total_row, ignore_index=True)
+            df_filtrado = pd.concat([df_filtrado, sum_total_row.to_frame().T], ignore_index=True)
 
             # Crea un nuevo DataFrame con las columnas deseadas para df_filtrado
             df_filtrado_display = df_filtrado[columns_to_show_in_visualization].copy()        
@@ -275,7 +249,6 @@ def main(authenticated=False):
         # Obtener Calculos para Permanencia
         venta_hora_promedio = suma_price_hour / num_sucursales
         permanencia = str(round((sum_total_row['ticket_prom_act'] / venta_hora_promedio) * 60, )) + " Min"
-
         
         #INDICADORES EN CARD METRIC
         #Primera Fila
@@ -303,8 +276,7 @@ def main(authenticated=False):
         with col8:
             ui.metric_card(title="FLUJO", content=flujo,  key="card8")           
         with col9:
-            ui.metric_card(title="PERMANENCIA", content=permanencia,  key="card9")    
-            
+            ui.metric_card(title="PERMANENCIA", content=permanencia,  key="card9")                
         
         # Muestra el DataFrame
         df_filtrado_display = df_filtrado[columns_to_show_in_visualization].copy()
@@ -326,8 +298,7 @@ def main(authenticated=False):
         # Eliminar último mes y fila Total
         df_grouped = df_grouped[df_grouped['periodo'] != ultimo_mes]
         df_grouped = df_grouped[df_grouped['periodo'] != 'Total'] 
-        df_grouped = df_grouped.sort_values('periodo')      
-
+        df_grouped = df_grouped.sort_values('periodo')   
 
         df_grafico = pd.DataFrame()
         df_grafico['periodo'] = periodos
@@ -365,4 +336,6 @@ def main(authenticated=False):
         st.dataframe(df_ranking_asc)
  
 if __name__ == "__main__":
-    main()   
+    main()    
+
+        

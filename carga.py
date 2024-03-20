@@ -360,6 +360,44 @@ def update_kpi_depositos_dia(cargar=False):
             connection.execute(insert_query)
             st.write("Depósitos diarios cargados con éxito.")
             
+def update_abonados(cargar=False):
+    engine = connect_to_db()
+    with engine.connect() as connection:
+        if cargar:
+            # Consulta de eliminación
+            delete_query = text("DELETE FROM TP_ABONADOS")
+            #Ejecutar la consulta de eliminación
+            connection.execute(delete_query) 
+            insert_query = text(""" INSERT INTO TP_ABONADOS
+            SELECT
+	            dtes.dte_id AS dte_id,
+	            DATE_FORMAT(dtes.created_at,"%Y-%m-%d") AS date,
+	            dtes.rut AS rut,
+	            users.`names` AS cliente,
+	            CONCAT_WS(" - ",dtes.rut,users.`names`)as razon_social,
+	            dtes.folio AS folio,
+	            dtes.branch_office_id AS branch_office_id,
+	            dtes.dte_type_id AS dte_type_id,
+	            dtes.status_id AS status_id,
+	            dtes.amount AS amount,
+	            dtes.period AS period,
+	            dtes.`comment` AS `comment`,
+	            statuses.`status` AS `status`,
+	            dtes.chip_id AS chip_id
+            FROM dtes
+                LEFT JOIN customers ON dtes.rut = customers.rut
+                LEFT JOIN users ON customers.rut = users.rut
+                LEFT JOIN statuses ON dtes.status_id = statuses.status_id
+            WHERE
+	            dtes.rut <> '66666666-6' AND
+	            dtes.dte_version_id = 1 AND
+	            dtes.status_id > 17 AND
+	            dtes.status_id < 24 AND
+	            users.rol_id = 14 AND
+	        YEAR(dtes.created_at) = (YEAR(curdate()))""")
+            connection.execute(insert_query)
+            st.write("Abonados Mensuales, cargados con éxito.")
+            
 
 
 def main(authenticated=False):
@@ -379,16 +417,26 @@ def main(authenticated=False):
                 version = st.selectbox("Selecciona la versión", ["Actual", "Año Anterior", "Presupuesto"])
                 cargar_button = st.form_submit_button("Cargar")
         st.markdown("""---""")
+        with st.form(key='depositos_form'):
+                st.write("Formulario de Depositos")
+                depositos_opcion = st.selectbox("Selecciona la opción", ["Recaudacion", "Depositos"])
+                cargar_depositos_button = st.form_submit_button("Cargar")
+        st.markdown("""---""")
         with st.form(key='abonados_form'):
                 st.write("Formulario de Abonados")
-                abonado_opcion = st.selectbox("Selecciona la opción", ["Recaudacion", "Depositos"])
+                depositos_opcion = st.selectbox("Selecciona la opción", ["Abonados"])
                 cargar_abonados_button = st.form_submit_button("Cargar")
 
-    if cargar_abonados_button:
-        if abonado_opcion == "Recaudacion":
+    if cargar_depositos_button:
+        if depositos_opcion == "Recaudacion":
             update_kpi_recaudacion_dia(cargar=True)            
-        elif abonado_opcion == "Depositos":
-            update_kpi_depositos_dia(cargar=True)         
+        elif depositos_opcion == "Depositos":
+            update_kpi_depositos_dia(cargar=True)     
+    
+    if cargar_abonados_button:
+        if depositos_opcion == "Abonados":
+            update_abonados(cargar=True)            
+              
 
     if cargar_button:
                 if periodo == "Mensual":
@@ -405,6 +453,7 @@ def main(authenticated=False):
                         update_kpi_ingresos_acumulado_ant(cargar=True)
                     elif version == "Presupuesto":
                         update_kpi_ingresos_acumulado_ppto(cargar=True)
+                
                 
     
 if __name__ == "__main__":
