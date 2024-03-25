@@ -18,9 +18,10 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
         if cargar:
             delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos';")
             connection.execute(delete_query)
-            insert_query = text("""INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
-            SELECT  
-            'Acumulado' as Periodo,
+            insert_query = text("""
+            INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
+      SELECT
+			'Acumulado' as Periodo,
             DM_PERIODO.period,
             DM_PERIODO.`Año`,
             QRY_BRANCH_OFFICES.branch_office, 
@@ -44,9 +45,9 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
             ON QRY_INGRESOS_TOTALES_PBI.date = DM_PERIODO.Fecha
         WHERE	
 	        QRY_BRANCH_OFFICES.status_id = 15 AND
-	        DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) < (DAY(CURDATE())) AND
-	        MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate()))) AND
-	        YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())
+	        DAY(QRY_PPTO_DIA.date) < DAY(CURDATE()) AND
+          MONTH(QRY_PPTO_DIA.date) = MONTH(CURDATE()) AND
+          YEAR(QRY_PPTO_DIA.date) = YEAR(CURDATE())
         GROUP BY 
 	        DM_PERIODO.Periodo,
 	        DM_PERIODO.period,
