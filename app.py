@@ -3,8 +3,8 @@ import requests
 import informe
 import dtes
 import depositos
-import cargas
 import dotacion
+import carga
 
 
 # Agregar una variable de estado para el estado de autenticación
@@ -58,7 +58,7 @@ def main():
                     st.success("Inicio de sesión exitoso!")
                     st.write(f"Bienvenido, {usuario['rol_id']}")                    
                     st.session_state.authenticated = True
-                    st.st_rerun() 
+                    st.rerun() 
                 else:
                     #st.session_state.authentication_status = False
                     st.session_state.authenticated = False
@@ -68,7 +68,6 @@ def main():
         menu_option = None
         st.sidebar.title("Menú")
         menu_option = st.sidebar.selectbox("Selecciona un informe", ["Informe de ventas", "Informe de abonados", "Informe de depositos", "Cargas", "Informe de dotaciones"])        
-
         try:
             if menu_option == "Informe de ventas":
                 informe.main(authenticated=st.session_state.authenticated)  
@@ -79,7 +78,7 @@ def main():
                 depositos.main(authenticated=st.session_state.authenticated)  
 
             elif menu_option == "Cargas":
-                cargas.main(authenticated=st.session_state.authenticated)
+                carga.main(authenticated=st.session_state.authenticated)
 
             elif menu_option == "Informe de dotaciones":
                 dotacion.main(authenticated=st.session_state.authenticated)

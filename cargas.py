@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
 
+# Configuración de depuración
+DEBUG = True
+
 # Conexión a la base de datos MySQL
 def connect_to_db():
     db_config = {
@@ -382,7 +385,7 @@ def update_kpi_ingresos_mensual_ppto(cargar=False):
             connection.execute(insert_query)       
             st.write("Ingresos Presupuesto Mensual, Cargados con exito.")
                
-st.title("Carga de datos")
+
 def cargar_datos(opcion1, opcion2, opcion3):
     if opcion1 == "Informe de ventas":
         if opcion2 == "Acumulado":
@@ -409,32 +412,35 @@ def cargar_datos(opcion1, opcion2, opcion3):
     else:
         st.write(f"No se encontraron datos para {opcion1} - {opcion2} - {opcion3}")
            
-def main(authenticated=False):
-    if not authenticated:        
-        raise Exception("No autenticado, Necesitas autenticarte primero")   
-    else:
-        opcion1 = st.selectbox("Selecciona una opción", ["Informe de ventas", "Abonados", "Depositos"])
-        if opcion1 == "Informe de ventas":
-            opcion2 = st.selectbox("Selecciona una opción", ["Acumulado", "Mensual"])
-        if opcion2 == "Acumulado":
-             opcion3 = st.selectbox("Selecciona una opción", ["Actual", "Año Anterior", "Ppto"])
-        if st.button("Carga"):            
+
+if st.session_state.logged_in and st.session_state.page == 'Cargas':
+    st.title("Carga de datos")
+opcion1 = st.selectbox("Selecciona una opción", ["Informe de ventas", "Abonados", "Depositos"])
+
+if opcion1 == "Informe de ventas":
+    opcion2 = st.selectbox("Selecciona una opción", ["Acumulado", "Mensual"])
+    if opcion2 == "Acumulado":
+        opcion3 = st.selectbox("Selecciona una opción", ["Actual", "Año Anterior", "Ppto"])
+        if st.button("Carga", key="carga_acumulado"):
             cargar_datos(opcion1, opcion2, opcion3)
-        elif opcion2 == "Mensual":
-            opcion3 = st.selectbox("Selecciona una opción", ["Actual", "Año Anterior", "Ppto"])
-        if st.button("Carga"):           
-            cargar_datos(opcion1, opcion2, opcion3)  
-        elif opcion1 == "Depositos":
-            opcion2 = st.selectbox("Selecciona una opción", ["Recaudacion", "Depositos"])
-        if opcion2 == "Recaudacion":
-            if st.button("Carga"):
-                cargar_datos(opcion1, opcion2, None)
-        elif opcion2 == "Depositos":
-            if st.button("Carga"):
-                cargar_datos(opcion1, opcion2, None)            
-        elif opcion1 == "Abonados":
-            if st.button("Carga"):
-                cargar_datos(opcion1, None, None)     
+    elif opcion2 == "Mensual":
+        opcion3 = st.selectbox("Selecciona una opción", ["Actual", "Año Anterior", "Ppto"])
+        if st.button("Carga", key="carga_mensual"):
+            cargar_datos(opcion1, opcion2, opcion3)
+elif opcion1 == "Depositos":
+    opcion2 = st.selectbox("Selecciona una opción", ["Recaudacion", "Depositos"])
+    if opcion2 == "Recaudacion":
+        if st.button("Carga", key="carga_recaudacion"):
+            cargar_datos(opcion1, opcion2, None)
+    elif opcion2 == "Depositos":
+        if st.button("Carga", key="carga_depositos"):
+            cargar_datos(opcion1, opcion2, None)
+elif opcion1 == "Abonados":
+    if st.button("Carga", key="carga_abonados"):
+        cargar_datos(opcion1, None, None)
+  
+            
+        
+
                                 
-if __name__ == "__main__":
-    main()   
+  
