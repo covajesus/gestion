@@ -197,7 +197,7 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
             ON QRY_INGRESOS_TOTALES_PBI.date = DM_PERIODO.Fecha
             WHERE	
                 QRY_BRANCH_OFFICES.status_id = 15 AND
-                DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) <= (DAY(CURDATE())-1) AND
+                DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) <=cd ges  (DAY(CURDATE())-1) AND
                 MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate()))) AND
                 YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())
             GROUP BY 

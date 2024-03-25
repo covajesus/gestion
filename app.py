@@ -3,7 +3,7 @@ import requests
 import informe
 import dtes
 import depositos
-import carga
+import cargas
 import dotacion
 
 
@@ -58,7 +58,7 @@ def main():
                     st.success("Inicio de sesión exitoso!")
                     st.write(f"Bienvenido, {usuario['rol_id']}")                    
                     st.session_state.authenticated = True
-                    st.experimental_rerun() 
+                    st.st_rerun() 
                 else:
                     #st.session_state.authentication_status = False
                     st.session_state.authenticated = False
@@ -79,7 +79,7 @@ def main():
                 depositos.main(authenticated=st.session_state.authenticated)  
 
             elif menu_option == "Cargas":
-                carga.main(authenticated=st.session_state.authenticated)
+                cargas.main(authenticated=st.session_state.authenticated)
 
             elif menu_option == "Informe de dotaciones":
                 dotacion.main(authenticated=st.session_state.authenticated)
