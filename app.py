@@ -4,7 +4,7 @@ import informe
 import dtes
 import depositos
 import dotacion
-import carga
+import cargas
 
 
 # Agregar una variable de estado para el estado de autenticación
@@ -78,7 +78,7 @@ def main():
                 depositos.main(authenticated=st.session_state.authenticated)  
 
             elif menu_option == "Cargas":
-                carga.main(authenticated=st.session_state.authenticated)
+                cargas.main(authenticated=st.session_state.authenticated)
 
             elif menu_option == "Informe de dotaciones":
                 dotacion.main(authenticated=st.session_state.authenticated)

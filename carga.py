@@ -12,28 +12,32 @@ def connect_to_db():
     engine = create_engine(f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}")
     return engine
 
-def update_kpi_ingresos_acumulado_act(cargar=False):
+def update_kpi_ingresos_acumulado_act(cargar=True):
     engine = connect_to_db()
-    with engine.connect() as connection:
+    # Utiliza engine.connect() para obtener una conexión
+    with engine.connect() as connection:        
         if cargar:
-            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos';")
-            connection.execute(delete_query)
+            # Consulta de eliminación
+            delete_query = text("DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' and metrica = 'ingresos' AND periodo != 'Acumulado'")
+            # Ejecutar la consulta de eliminación
+            connection.execute(delete_query)      
+            # Consulta de inserción
             insert_query = text("""
             INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
       SELECT
 			'Acumulado' as Periodo,
             DM_PERIODO.period,
             DM_PERIODO.`Año`,
-            QRY_BRANCH_OFFICES.branch_office, 
-            QRY_IND_SSS.`value`, 
-            SUM(QRY_INGRESOS_TOTALES_PBI.ticket_number)AS ticket_number, 
-            SUM(QRY_INGRESOS_TOTALES_PBI.abonados) AS abonados, 
-            SUM(QRY_INGRESOS_TOTALES_PBI.net_amount) AS net_amount, 
-            SUM(QRY_INGRESOS_TOTALES_PBI.transbank) AS transbank,	
-            SUM((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank)) AS Venta_Neta, 
-            SUM((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank + QRY_INGRESOS_TOTALES_PBI.abonados)) AS Ingresos, 
+            QRY_BRANCH_OFFICES.branch_office,
+            QRY_IND_SSS.`value`,
+            SUM(QRY_INGRESOS_TOTALES_PBI.ticket_number)AS ticket_number,
+            SUM(QRY_INGRESOS_TOTALES_PBI.abonados) AS abonados,
+            SUM(QRY_INGRESOS_TOTALES_PBI.net_amount) AS net_amount,
+            SUM(QRY_INGRESOS_TOTALES_PBI.transbank) AS transbank,
+            SUM((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank)) AS Venta_Neta,
+            SUM((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank + QRY_INGRESOS_TOTALES_PBI.abonados)) AS Ingresos,
             '0' as ppto,
-            SUM(((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank) * (QRY_IND_SSS.`value`))) AS Venta_SSS, 
+            SUM(((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank) * (QRY_IND_SSS.`value`))) AS Venta_SSS,
             SUM(((QRY_INGRESOS_TOTALES_PBI.net_amount + QRY_INGRESOS_TOTALES_PBI.transbank + QRY_INGRESOS_TOTALES_PBI.abonados) * (QRY_IND_SSS.`value`))) AS Ingresos_SSS,
             'ingresos' as metrica
         FROM QRY_INGRESOS_TOTALES_PBI
@@ -43,20 +47,25 @@ def update_kpi_ingresos_acumulado_act(cargar=False):
             ON QRY_INGRESOS_TOTALES_PBI.clave = QRY_IND_SSS.clave
             LEFT JOIN DM_PERIODO
             ON QRY_INGRESOS_TOTALES_PBI.date = DM_PERIODO.Fecha
-        WHERE	
+        WHERE
 	        QRY_BRANCH_OFFICES.status_id = 15 AND
 	        DAY(`QRY_INGRESOS_TOTALES_PBI`.`date`) < (DAY(CURDATE())) AND
 	        MONTH(`QRY_INGRESOS_TOTALES_PBI`.`date`) = ((MONTH(curdate()))) AND
 	        YEAR(`QRY_INGRESOS_TOTALES_PBI`.`date`) = YEAR(curdate())
-        GROUP BY 
+        GROUP BY
 	        DM_PERIODO.Periodo,
 	        DM_PERIODO.period,
 	        DM_PERIODO.`Año`,
 	        QRY_BRANCH_OFFICES.branch_office
         ORDER BY
 	        QRY_INGRESOS_TOTALES_PBI.date ASC""")
-            connection.execute(insert_query)
+            st.write(insert_query)
+            # Ejecutar la consulta de inserción
+            connection.execute(insert_query)           
             st.write("Ingresos Actual Acumulado, Cargados con exito.")
+            
+
+
 
 def update_kpi_ingresos_acumulado_ant(cargar=False):
     engine = connect_to_db()
@@ -442,11 +451,7 @@ def main(authenticated=False):
         elif opcion1 == "Abonados":
             if st.button("Carga", key="carga_abonados"):
                 cargar_datos(opcion1, None, None)
-                   
-              
-
-                
-                
+                                  
     
 if __name__ == "__main__":
     main()   
