@@ -130,12 +130,13 @@ def update_kpi_ingresos_acumulado_ant(conn):
 
 def update_kpi_ingresos_acumulado_ppto(conn):
     try:    
-        set_locale_query = text("SET lc_time_names = 'es_ES'")    
+        #set_locale_query = text("SET lc_time_names = 'es_ES'")    
         query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE metrica = 'ppto' AND periodo = 'Acumulado';"
         cursor = conn.cursor()
         cursor.execute(query)
         conn.commit()
         query = """
+        SET lc_time_names = 'es_ES';
         INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
             SELECT
             'Acumulado' AS periodo,
@@ -284,12 +285,13 @@ def update_kpi_ingresos_mes_ant(conn):
 
 def update_kpi_ingresos_mes_ppto(conn):
     try:    
-        set_locale_query = text("SET lc_time_names = 'es_ES'")    
+        #set_locale_query = text("SET lc_time_names = 'es_ES'")    
         query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE metrica = 'ppto' and Period != 'Acumulado'"
         cursor = conn.cursor()
         cursor.execute(query)
         conn.commit()
         query = """
+        SET lc_time_names = 'es_ES';
         INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
             SELECT 	
             CONCAT(LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0'),'-',UPPER(SUBSTRING(MONTHNAME(QRY_PPTO_DIA.date), 1, 1)), 
