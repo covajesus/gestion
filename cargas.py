@@ -158,7 +158,7 @@ def update_kpi_ingresos_acumulado_ppto(conn):
             LEFT JOIN QRY_BRANCH_OFFICES
             ON QRY_PPTO_DIA.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
             WHERE 
-            DAY(QRY_PPTO_DIA.date) < DAY(CURDATE()) AND
+            DAY(QRY_PPTO_DIA.date) <= DAY(CURDATE()) AND
              MONTH(QRY_PPTO_DIA.date) = MONTH(CURDATE()) AND
             YEAR(QRY_PPTO_DIA.date) = YEAR(CURDATE())
             GROUP BY
