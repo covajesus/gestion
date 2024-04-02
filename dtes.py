@@ -23,7 +23,7 @@ def kpi_dtes_mensuales():
 
 def qry_branch_offices():
     engine = connect_to_db()
-    query = "SELECT * FROM QRY_BRANCH_OFFICES"
+    query = "SELECT * FROM QRY_BRANCH_OFFICES WHERE status_id = 15"
     sucursales = pd.read_sql(query, engine)
     #st.table(sucursales)
     return sucursales 
@@ -74,10 +74,14 @@ def main(authenticated=False):
         columns_to_show = ['rut', 'cliente', 'razon_social','folio', 'sucursal', 'supervisor', 'tipo', 'status', 'monto', 'Periodo', 'Año', 'comment', 'contador', 'link']
         df_status_dte = dte_final[columns_to_show]
         columns_to_show = ['rut', 'cliente' , 'razon_social','folio' , 'sucursal' ,'supervisor' , 'tipo' , 'status' , 'monto', 'Periodo' , 'Año', 'comment', 'contador', 'link'] 
+        #st.dataframe(df_status_dte)
+        #st.dataframe(dte_final)
         
         st.sidebar.title('Filtros Disponibles')    
         periodos = df_status_dte['Periodo'].unique()
-        supervisors = df_status_dte['supervisor'].unique()
+        df_status_dte_filtrado = df_status_dte.query('supervisor != "nan"')
+        supervisors = df_status_dte_filtrado['supervisor'].unique()
+        #supervisors = df_status_dte['supervisor'].unique()
         status_options = df_status_dte['status'].unique()
         status_seleccionados = st.sidebar.multiselect('Seleccione Status:',status_options,default=status_options)
         supervisor_seleccionados = st.sidebar.multiselect('Seleccione Supervisores:', supervisors)
@@ -161,6 +165,7 @@ def main(authenticated=False):
         pivot_contador['Total'] = pivot_contador.sum(axis=1)
         
         merged_pivot = pd.merge(pivot_monto, pivot_contador, on='supervisor', suffixes=('_monto', '_contador'))
+        #st.write(merged_pivot.columns)
         merged_pivot = merged_pivot.sort_values(by='Imputada por Pagar_monto', ascending=False) 
         merged_pivot.loc['Total'] = merged_pivot.sum()
         merged_pivot = merged_pivot.rename(columns={"Imputada Pagada_monto": "Pagada $", 
@@ -170,6 +175,7 @@ def main(authenticated=False):
                                                         "Imputada por Pagar_contador": "Por Pagar N°",
                                                         "Total_contador": "Total N°"})
 
+       
         st.dataframe(merged_pivot)
         pivot_monto_sucursal = df_filtrado.pivot_table(values='monto', index='sucursal', columns='status', aggfunc='sum', fill_value=0)
         pivot_monto_sucursal['Total'] = pivot_monto_sucursal.sum(axis=1)
@@ -186,7 +192,7 @@ def main(authenticated=False):
                                                                         "Imputada Pagada_contador": "Pagada N°",
                                                                         "Imputada por Pagar_contador": "Por Pagar N°",
                                                                         "Total_contador": "Total N°"})
-            
+           
         st.dataframe(merged_pivot_sucursal)
     st.dataframe(df_nuevo) 
     

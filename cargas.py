@@ -353,55 +353,61 @@ def update_kpi_ingresos_mes_ppto(conn):
 #Carga de Abonados
 def update_abonados(conn):
     try:        
-        query = "DELETE FROM TP_ABONADOS"
         cursor = conn.cursor()
-        cursor.execute(query)
-        conn.commit()
+        # Eliminar registros
+        query_delete = "DELETE FROM TP_ABONADOS;"
+        cursor.execute(query_delete)        
+        # Insertar registros
         query = """
         INSERT INTO TP_ABONADOS
             SELECT
-	            dtes.dte_id AS dte_id,
-	            DATE_FORMAT(dtes.created_at,"%Y-%m-%d") AS date,
-	            dtes.rut AS rut,
-                UPPER(users.`names`) AS cliente,
-                CONCAT_WS(" - ",dtes.rut,UPPER(users.`names`))as razon_social,
-	            dtes.folio AS folio,
-	            dtes.branch_office_id AS branch_office_id,
-	            dtes.dte_type_id AS dte_type_id,
-	            dtes.status_id AS status_id,
-	            dtes.amount AS amount,
-	            dtes.period AS period,
-	            dtes.`comment` AS `comment`,
-	            statuses.`status` AS `status`,
-	            dtes.chip_id AS chip_id
-            FROM dtes
-                LEFT JOIN customers ON dtes.rut = customers.rut
-                LEFT JOIN users ON customers.rut = users.rut
-                LEFT JOIN statuses ON dtes.status_id = statuses.status_id
+            tp_dtes.dte_id AS dte_id, 
+            DATE_FORMAT(tp_dtes.created_at,"%Y-%m-%d") AS date, 
+            tp_dtes.rut AS rut, 
+            UPPER(users.`names`) AS cliente, 
+            CONCAT_WS(" - ",tp_dtes.rut,UPPER(users.`names`)) AS razon_social, 
+            tp_dtes.folio AS folio, 
+            tp_dtes.branch_office_id AS branch_office_id, 
+            tp_dtes.dte_type_id AS dte_type_id, 
+            tp_dtes.status_id AS status_id, 
+            tp_dtes.amount AS amount, 
+            tp_dtes.period AS period, 
+            tp_dtes.`comment` AS `comment`, 
+            statuses.`status` AS `status`, 
+            tp_dtes.chip_id AS chip_id
+            FROM 	tp_dtes
+            LEFT JOIN 	customers
+            ON tp_dtes.rut = customers.rut
+            LEFT JOIN users
+            ON customers.rut = users.rut
+            LEFT JOIN statuses
+            ON tp_dtes.status_id = statuses.status_id
             WHERE
-	            dtes.rut <> '66666666-6' AND
-	            dtes.dte_version_id = 1 AND
-	            dtes.status_id > 17 AND
-	            dtes.status_id < 24 AND
-	            users.rol_id = 14 AND
-	        YEAR(dtes.created_at) = (YEAR(curdate()))
+            tp_dtes.rut <> '66666666-6' AND
+            tp_dtes.dte_version_id = 1 AND
+            tp_dtes.status_id > 17 AND
+            tp_dtes.status_id < 24 AND
+            users.rol_id = 14 AND
+            YEAR(tp_dtes.created_at) = (YEAR(curdate()));
         """
-        cursor = conn.cursor()
+        
         cursor.execute(query)
         conn.commit()
         st.write("Abonados Mensuales, cargados con éxito.")
     except Error as e:
         st.write(f"The error '{e}' occurred")
+        conn.rollback()
     finally:
         cursor.close()
 
 #Carga Depositos
 def update_kpi_depositos_dia(conn):
-    try:        
-        query = "DELETE FROM KPI_DTES_DEPOSITOS_DIA"
+    try: 
         cursor = conn.cursor()
-        cursor.execute(query)
-        conn.commit()
+        # Eliminar registros
+        query_delete = "DELETE FROM KPI_DTES_DEPOSITOS_DIA;"
+        cursor.execute(query_delete)         
+        # Insertar registros
         query = """
         INSERT INTO KPI_DTES_DEPOSITOS_DIA (Fecha, branch_office_id, deposito)
                 SELECT
@@ -419,22 +425,24 @@ def update_kpi_depositos_dia(conn):
                     DATE_FORMAT(deposits.collection_date, '%Y-%m-%d'),
                     deposits.branch_office_id
         """
-        cursor = conn.cursor()
+        
         cursor.execute(query)
         conn.commit()
         st.write("Depósitos diarios cargados con éxito.")
     except Error as e:
         st.write(f"The error '{e}' occurred")
+        conn.rollback()
     finally:
         cursor.close()
         
         
 def update_kpi_recaudacion_dia(conn):
-    try:        
-        query = "DELETE FROM KPI_DTES_RECAUDACION_DIA"
+    try:
         cursor = conn.cursor()
-        cursor.execute(query)
-        conn.commit()
+        # Eliminar registros
+        query_delete = "DELETE FROM KPI_DTES_RECAUDACION_DIA;"
+        cursor.execute(query_delete)           
+        # Insertar registros
         query = """
         INSERT INTO KPI_DTES_RECAUDACION_DIA (Fecha, branch_office_id, recaudacion)
                 SELECT
@@ -454,12 +462,13 @@ def update_kpi_recaudacion_dia(conn):
                     DATE_FORMAT(collections.created_at, '%Y-%m-%d'),
                     collections.branch_office_id
         """
-        cursor = conn.cursor()
+        
         cursor.execute(query)
         conn.commit()
         st.write("Recaudación diaria cargada con éxito.")
     except Error as e:
         st.write(f"The error '{e}' occurred")
+        conn.rollback()
     finally:
         cursor.close()
 

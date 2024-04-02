@@ -34,99 +34,95 @@ def connect_to_db():
     engine = create_engine(f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}")
     return engine
 
-def tp_recaudacion_neto():
+    
+
+# Recaudaciones
+def tp_ingresos():
     engine = connect_to_db()
     query = """
     SELECT
-        date_format(`collections`.`created_at`, '%Y-%m-%d') AS `date`,
-        MONTH(`collections`.`created_at`)as mes,
-        YEAR(`collections`.`created_at`)as year,
-        `collections`.`branch_office_id` AS `branch_office_id`,
-        CONCAT(`collections`.`branch_office_id`, date_format(`collections`.`created_at`, '%Y'),date_format(`collections`.`created_at`, '%m') * 1) AS `clave`,
-        SUM(`collections`.`ticket_number`) AS `ticket_number`,
-        0 AS `abonados`,
-        SUM(`collections`.`net_amount`) AS `net_amount`,
-        SUM(`collections`.`card_net_amount`) AS `transbank`
-    FROM `collections`
-    LEFT JOIN `cashiers`
-        ON `collections`.`cashier_id` = `cashiers`.`cashier_id`
-    LEFT JOIN `branch_offices`
-        ON `collections`.`branch_office_id` = `branch_offices`.`branch_office_id`
-    WHERE `cashiers`.`cashier_type_id` <> 3
-            AND `collections`.`created_at` >= '2019-12-31'
-            AND `branch_offices`.`principal` <> 'ADMINISTRACION'
-    GROUP BY
-        `collections`.`branch_office_id`,
-        `collections`.`created_at`;
+	QRY_INGRESOS_TOTALES_PBI.date,
+	CONCAT(YEAR(QRY_INGRESOS_TOTALES_PBI.date), '-', LPAD(MONTH(QRY_INGRESOS_TOTALES_PBI.date), 2, '0')) AS period,	
+    YEAR(QRY_INGRESOS_TOTALES_PBI.date) AS year,
+    CASE MONTH(QRY_INGRESOS_TOTALES_PBI.date)
+    WHEN 1 THEN '01 - Enero'
+    WHEN 2 THEN '02 - Febrero'
+    WHEN 3 THEN '03 - Marzo'
+    WHEN 4 THEN '04 - Abril'
+    WHEN 5 THEN '05 - Mayo'
+    WHEN 6 THEN '06 - Junio'
+    WHEN 7 THEN '07 - Julio'
+    WHEN 8 THEN '08 - Agosto'
+    WHEN 9 THEN '09 - Septiembre'
+    WHEN 10 THEN '10 - Octubre'
+    WHEN 11 THEN '11 - Noviembre'
+    WHEN 12 THEN '12 - Diciembre'
+    END AS periodo,
+	QRY_INGRESOS_TOTALES_PBI.branch_office_id,
+	QRY_INGRESOS_TOTALES_PBI.clave,
+	QRY_INGRESOS_TOTALES_PBI.ticket_number,
+	QRY_INGRESOS_TOTALES_PBI.abonados,
+	QRY_INGRESOS_TOTALES_PBI.net_amount,
+	QRY_INGRESOS_TOTALES_PBI.transbank
+    FROM
+	QRY_INGRESOS_TOTALES_PBI;
     """
-    ingresos_neto = pd.read_sql(query, engine)
-    return ingresos_neto
+    df_collections = pd.read_sql(query, engine)
+    return df_collections
 
 
-def tp_abonados_neto():
-    engine = connect_to_db()
-    query = """
-    SELECT
-        date_format(`collections`.`created_at`,'%Y-%m-%d') AS date,
-        MONTH(`collections`.`created_at`)as mes,
-        YEAR(`collections`.`created_at`)as year,
-        collections.branch_office_id AS branch_office_id,
-        concat(`collections`.`branch_office_id`,date_format(`collections`.`created_at`,'%Y'),date_format(`collections`.`created_at`,'%m') * 1) AS clave,
-        0 AS ticket_number,
-        sum(collections.net_amount) AS abonados,
-        0 AS net_amount,
-        sum(collections.card_net_amount) AS transbank
-    FROM collections
-    LEFT JOIN cashiers
-    ON collections.cashier_id = cashiers.cashier_id
-    LEFT JOIN branch_offices
-    ON collections.branch_office_id = branch_offices.branch_office_id
-    WHERE
-        cashiers.cashier_type_id = 3 AND
-        collections.created_at >= '2022-12-31' AND
-        branch_offices.principal <> 'ADMINISTRACION'
-    GROUP BY
-        collections.branch_office_id,
-        collections.created_at;
-    """
-    abonados_neto = pd.read_sql(query, engine)
-    return abonados_neto
-
-
+# Presupuesto
 def qry_ppto_dia():
     engine = connect_to_db()
     query = """
     SELECT 
     date,
-    MONTH(date)as mes,
     YEAR(date)as year,
+	CONCAT(YEAR(date), '-', LPAD(MONTH(date), 2, '0')) AS period,
+	CASE MONTH(date)
+    WHEN 1 THEN '01 - Enero'
+    WHEN 2 THEN '02 - Febrero'
+    WHEN 3 THEN '03 - Marzo'
+    WHEN 4 THEN '04 - Abril'
+    WHEN 5 THEN '05 - Mayo'
+    WHEN 6 THEN '06 - Junio'
+    WHEN 7 THEN '07 - Julio'
+    WHEN 8 THEN '08 - Agosto'
+    WHEN 9 THEN '09 - Septiembre'
+    WHEN 10 THEN '10 - Octubre'
+    WHEN 11 THEN '11 - Noviembre'
+    WHEN 12 THEN '12 - Diciembre'
+    END AS periodo,
     branch_office_id,
-    ppto 
+    ppto		
     FROM 
     QRY_PPTO_DIA"""
     ppto = pd.read_sql(query, engine)
     return ppto 
 
-
+# Sucursales
 def qry_branch_offices():
     engine = connect_to_db()
     query = "SELECT * FROM QRY_BRANCH_OFFICES WHERE status_id = 15"
     sucursales = pd.read_sql(query, engine)
     return sucursales 
 
-
+# Same Store Sale
 def qry_sss():
     engine = connect_to_db()
     query = "SELECT * FROM QRY_SSS"
     sss = pd.read_sql(query, engine)
     return sss 
 
+# Periodos
 def generar_periodos(mes_actual):
    periodos = ['01-Enero','02-Febrero','03-Marzo','04-Abril','05-Mayo','06-Junio',
               '07-Julio','08-Agosto','09-Septiembre','10-Octubre','11-Noviembre','12-Diciembre']
    periodos[mes_actual-1] = 'Acumulado'
    return periodos   
 
+
+# Main
 def main(authenticated=True):    
     if not authenticated:
         raise Exception("No autenticado, Necesitas autenticarte primero")
@@ -135,48 +131,44 @@ def main(authenticated=True):
         #return
     else:
         
-        df_recaudacion = tp_recaudacion_neto()
-        df_abonados = tp_abonados_neto()
+        df_ingresos = tp_ingresos()
         df_sucursales = qry_branch_offices()
         df_ppto = qry_ppto_dia()
-        df_sss = qry_sss()
-        
-        # Establecer "date" como índice en ambos dataframes
-        df_recaudacion.set_index("date", inplace=True)
-        df_abonados.set_index("date", inplace=True)
-
-       # Concatenate dataframes using 'date' as index
-        df_concatenado = pd.concat([df_recaudacion, df_abonados])
-        # Reset index to include 'date' column in the dataframe
-        df_concatenado.reset_index(inplace=True)
-        
-        
-        #st.dataframe(df_concatenado)
-        
+        df_sss = qry_sss() 
+             
         ### INGRESOS ACTUAL 2024
-        df_ingresos_2024 = df_concatenado[(df_concatenado["year"] == 2024)]
-        columns_ingresos = ["date", "year", "mes", "branch_office_id" , "ticket_number" , "net_amount" , "transbank" , "abonados" ]
+        df_ingresos_2024 = df_ingresos[(df_ingresos["year"] == 2024)]
+        columns_ingresos = ["periodo", "branch_office_id" , "ticket_number" , "net_amount" , "transbank" , "abonados" , "clave"]
         df_ingresos_act = df_ingresos_2024[columns_ingresos]
     
         df_ingresos_act = df_ingresos_act.rename(columns={"ticket_number": "ticket_number_Act", 
                                             "net_amount" : "Venta_Neta_Act" ,
                                             "transbank": "Transbank_Act",
                                             "abonados" : "Abonados_Act"})        
-        st.dataframe(df_ingresos_act)
+        #st.dataframe(df_ingresos_act)
         
         
         ### INGRESOS ANTERIOR 2023
-        df_ingresos_2023 = df_concatenado[(df_concatenado["year"] == 2023)]
-        columns_ingresos = ["date", "year", "mes", "branch_office_id" , "ticket_number" , "net_amount" , "transbank" , "abonados" ]
+        df_ingresos_2023 = df_ingresos[(df_ingresos["year"] == 2023)]
+        columns_ingresos = ["periodo" ,"date",  "branch_office_id" , "ticket_number" , "net_amount" , "transbank" , "abonados", "clave" ]
         df_ingresos_ant = df_ingresos_2023[columns_ingresos]
     
         df_ingresos_ant = df_ingresos_ant.rename(columns={"ticket_number": "ticket_number_Ant", 
                                             "net_amount" : "Venta_Neta_Ant" ,
                                             "transbank": "Transbank_Ant",
                                             "abonados" : "Abonados_Ant"})        
-        st.dataframe(df_ingresos_ant)
+        #st.dataframe(df_ingresos_ant)
         
+        df_general = df_ingresos_act.merge(df_ingresos_ant, on=["branch_office_id", "periodo"], how="outer", suffixes=('_Act', '_Ant'))
         
+        df_general = df_general.fillna(0)  
+        df_general = df_general.groupby(["periodo","date", "branch_office_id"]).first().reset_index()   
+        st.dataframe(df_general)    
+        
+        df_general = df_general.merge(df_ppto[['branch_office_id', 'date', 'ppto']], on=["branch_office_id", "date"], how="outer")
+        
+ 
+        st.dataframe(df_general) 
         
         
 if __name__ == "__main__":
