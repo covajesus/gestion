@@ -20,6 +20,7 @@ def get_db_connection():
         st.write(f"The error '{e}' occurred")
 
 #Informe de ventas - Acumulados       
+
 def update_kpi_ingresos_acumulado_act(conn):
     try:        
         query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos'"
@@ -129,49 +130,62 @@ def update_kpi_ingresos_acumulado_ant(conn):
 
 
 def update_kpi_ingresos_acumulado_ppto(conn):
-    try:    
-        #set_locale_query = text("SET lc_time_names = 'es_ES'")    
-        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE metrica = 'ppto' AND periodo = 'Acumulado';"
+    try:
         cursor = conn.cursor()
-        cursor.execute(query)
-        conn.commit()
+        # Eliminar registros
+        query_delete = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE metrica = 'ppto' AND periodo = 'Acumulado';"
+        cursor.execute(query_delete)
+
+        # CONFIGURAR SET_time_names
+        set_locale_query = "SET lc_time_names = 'es_ES';"
+        cursor.execute(set_locale_query)
+
+        # Insertar registros
         query = """
-        SET lc_time_names = 'es_ES';
         INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
-            SELECT
-            'Acumulado' AS periodo,
-            CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')) AS period,
-            YEAR(QRY_PPTO_DIA.date) AS año,
-            QRY_BRANCH_OFFICES.branch_office AS branch_office,
-            '0' AS `value`,
-            '0' AS `ticket_number`,
-            '0' AS `abonados`,
-            '0' AS `net_amount`,
-            '0' AS transbank,
-            '0' AS Venta_Neta,
-	    	'0' AS Ingresos,
-            SUM(QRY_PPTO_DIA.ppto) AS ppto,
-            '0' AS Venta_SSS,
-            '0' AS Ingresos_SSS,
-            'ppto' AS metrica
-            FROM QRY_PPTO_DIA
-            LEFT JOIN QRY_BRANCH_OFFICES
-            ON QRY_PPTO_DIA.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
-            WHERE 
-            DAY(QRY_PPTO_DIA.date) <= DAY(CURDATE()) AND
-             MONTH(QRY_PPTO_DIA.date) = MONTH(CURDATE()) AND
-            YEAR(QRY_PPTO_DIA.date) = YEAR(CURDATE())
-            GROUP BY
-            QRY_BRANCH_OFFICES.branch_office
+        SELECT
+        'Acumulado' AS periodo,
+        CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')) AS period,
+        YEAR(QRY_PPTO_DIA.date) AS año,
+        QRY_BRANCH_OFFICES.branch_office AS branch_office,
+        '0' AS `value`,
+        '0' AS `ticket_number`,
+        '0' AS `abonados`,
+        '0' AS `net_amount`,
+        '0' AS transbank,
+        '0' AS Venta_Neta,
+        '0' AS Ingresos,
+        SUM(QRY_PPTO_DIA.ppto) AS ppto,
+        '0' AS Venta_SSS,
+        '0' AS Ingresos_SSS,
+        'ppto' AS metrica
+        FROM QRY_PPTO_DIA
+        LEFT JOIN QRY_BRANCH_OFFICES
+        ON QRY_PPTO_DIA.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
+        WHERE
+        DAY(QRY_PPTO_DIA.date) <= DAY(CURDATE()-1) AND
+        MONTH(QRY_PPTO_DIA.date) = MONTH(CURDATE()) AND
+        YEAR(QRY_PPTO_DIA.date) = YEAR(CURDATE())
+        GROUP BY
+        QRY_BRANCH_OFFICES.branch_office;
         """
-        cursor = conn.cursor()
         cursor.execute(query)
+
+        # Confirmar transacción
         conn.commit()
+
         st.write("Ingresos Presupuesto Acumulado, Cargados con exito.")
+
     except Error as e:
+        # Revertir transacción en caso de error
+        conn.rollback()
         st.write(f"The error '{e}' occurred")
+
     finally:
         cursor.close()
+
+        
+
 
 #Informe de ventas - Mensuales
 
@@ -284,51 +298,57 @@ def update_kpi_ingresos_mes_ant(conn):
 
 
 def update_kpi_ingresos_mes_ppto(conn):
-    try:    
-        #set_locale_query = text("SET lc_time_names = 'es_ES'")    
-        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE metrica = 'ppto' and Period != 'Acumulado'"
+    try:
         cursor = conn.cursor()
-        cursor.execute(query)
-        conn.commit()
+        # Eliminar registros
+        query_delete = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE metrica = 'ppto' and Period != 'Acumulado';"
+        cursor.execute(query_delete)
+        
+        # CONFIGURAR SET_time_names
+        set_locale_query = "SET lc_time_names = 'es_ES';"
+        cursor.execute(set_locale_query)
+
+        # Insertar registros
         query = """
-        SET lc_time_names = 'es_ES';
-        INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
-            SELECT 	
-            CONCAT(LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0'),'-',UPPER(SUBSTRING(MONTHNAME(QRY_PPTO_DIA.date), 1, 1)), 
-                   LOWER(SUBSTRING(MONTHNAME(QRY_PPTO_DIA.date), 2))) AS periodo,
-            CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')) AS period,
-            YEAR(QRY_PPTO_DIA.date) as año,    
-            QRY_BRANCH_OFFICES.branch_office as branch_office,
+            INSERT INTO KPI_INGRESOS_IMG_MES (periodo, period, año, branch_office, `value`, ticket_number, abonados, net_amount , transbank, Venta_Neta , Ingresos, ppto, Venta_SSS, Ingresos_SSS, metrica)
+            SELECT
+                CONCAT(LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0'),'-',UPPER(SUBSTRING(MONTHNAME(QRY_PPTO_DIA.date), 1, 1)),
+                       LOWER(SUBSTRING(MONTHNAME(QRY_PPTO_DIA.date), 2))) AS periodo,
+                CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')) AS period,
+                YEAR(QRY_PPTO_DIA.date) as año,
+                QRY_BRANCH_OFFICES.branch_office as branch_office,
                 '0' as `value`,
                 '0' as `ticket_number`,
                 '0' as `abonados`,
                 '0' as `net_amount`,
                 '0' as transbank,
-                '0' as Venta_Neta,	
+                '0' as Venta_Neta,
                 '0' as Ingresos,
-            SUM(QRY_PPTO_DIA.ppto) as ppto,
-                '0' as Venta_SSS,		
+                SUM(QRY_PPTO_DIA.ppto) as ppto,
+                '0' as Venta_SSS,
                 '0' as Ingresos_SSS,
                 'ppto' as metrica
-            FROM QRY_PPTO_DIA 
+            FROM QRY_PPTO_DIA
             LEFT JOIN QRY_BRANCH_OFFICES
                 ON QRY_PPTO_DIA.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
-            WHERE 
-                #DAY(QRY_PPTO_DIA.date) < (DAY(CURDATE())) AND
-                #MONTH(QRY_PPTO_DIA.date) = ((MONTH(curdate()))) AND
-                YEAR(QRY_PPTO_DIA.date) = YEAR(curdate())                
+            WHERE
+                YEAR(QRY_PPTO_DIA.date) = YEAR(curdate())
             GROUP BY
                 CONCAT(YEAR(QRY_PPTO_DIA.date), '-', LPAD(MONTH(QRY_PPTO_DIA.date), 2, '0')),
-                QRY_BRANCH_OFFICES.branch_office
+                QRY_BRANCH_OFFICES.branch_office;
         """
-        cursor = conn.cursor()
         cursor.execute(query)
-        conn.commit()
+        # Confirmar transacción
+        conn.commit()        
         st.write("Ingresos Presupuesto Mensual, Cargados con exito.")
     except Error as e:
+        # Revertir transacción en caso de error
+        conn.rollback()
         st.write(f"The error '{e}' occurred")
+
     finally:
         cursor.close()
+
 
 #Carga de Abonados
 def update_abonados(conn):
@@ -443,7 +463,7 @@ def update_kpi_recaudacion_dia(conn):
     finally:
         cursor.close()
 
-
+#Formulario Menu
 def cargar_datos(opcion1, opcion2, opcion3):
     if opcion1 == "Informe de ventas":
         if opcion2 == "Acumulado":

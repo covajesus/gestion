@@ -108,9 +108,14 @@ def main(authenticated=False):
         contador_sum = df_agrupado['contador']
         
         monto_sum = format_currency(df_agrupado['monto'])
-        porc_pagados = format_percentage((cantidad_pagada  / contador_sum)*100)
-        porc_por_pagar = format_percentage((cantidad_por_pagar  / contador_sum)*100)
-        porc_link = format_percentage((cantidad_link_si  / contador_sum)*100)  
+        if contador_sum != 0:
+            porc_pagados = format_percentage((cantidad_pagada  / contador_sum)*100)
+            porc_por_pagar = format_percentage((cantidad_por_pagar  / contador_sum)*100)
+            porc_link = format_percentage((cantidad_link_si  / contador_sum)*100)
+        else:
+            porc_pagados = 0  # o cualquier otro valor que quieras asignar si contador_sum es cero
+            porc_por_pagar = 0  # o cualquier otro valor que quieras asignar si contador_sum es cero
+            porc_link = 0  # o cualquier otro valor que quieras asignar si contador_sum es cero
         
         #INDICADORES EN CARD METRIC
         #Primera Fila
