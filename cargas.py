@@ -358,8 +358,7 @@ def update_abonados(conn):
         query_delete = "DELETE FROM TP_ABONADOS;"
         cursor.execute(query_delete)        
         # Insertar registros
-        query = """
-        INSERT INTO TP_ABONADOS
+        query = """INSERT INTO TP_ABONADOS
             SELECT DISTINCT
             tp_dtes.dte_id AS dte_id, 
             DATE_FORMAT(tp_dtes.created_at,"%Y-%m-%d") AS date, 
