@@ -360,7 +360,7 @@ def update_abonados(conn):
         # Insertar registros
         query = """
         INSERT INTO TP_ABONADOS
-            SELECT
+            SELECT DISTINCT
             tp_dtes.dte_id AS dte_id, 
             DATE_FORMAT(tp_dtes.created_at,"%Y-%m-%d") AS date, 
             tp_dtes.rut AS rut, 
