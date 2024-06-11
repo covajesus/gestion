@@ -245,7 +245,7 @@ def main(authenticated=False):
         ticket_promedio_formatted = format_currency(sum_total_row['ticket_prom_act'])
         #num_sucursales = df_filtrado['sucursal'].nunique()
 	#num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 0][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()  
-	num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 100][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()
+	num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 200][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()
         flujo = format_valor(sum_total_row['ticket_number'])
         
         # Obtener Calculos para Permanencia
