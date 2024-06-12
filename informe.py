@@ -243,10 +243,11 @@ def main(authenticated=False):
         var_sss_formatted = sum_total_row['var_SSS'] 
         desv_formatted = sum_total_row['desv']
         ticket_promedio_formatted = format_currency(sum_total_row['ticket_prom_act'])
-        #num_sucursales = df_filtrado['sucursal'].nunique()
-	#num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 0][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()  
-	num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 200][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()
+        num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 200][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()
         flujo = format_valor(sum_total_row['ticket_number'])
+        #num_sucursales = df_filtrado['sucursal'].nunique()
+	    #num_sucursales = df_filtrado[df_filtrado['Ingresos_Act'] > 0][df_filtrado['sucursal'] != 'Total']['sucursal'].nunique()  
+	    
         
         # Obtener Calculos para Permanencia
         venta_hora_promedio = suma_price_hour / num_sucursales
