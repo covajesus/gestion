@@ -36,8 +36,7 @@ def guardar_datos_csv(df_nuevos, nombre_archivo):
     try:
         df_viejos = leer_datos_csv(nombre_archivo)
     except:
-        df_viejos = pd.DataFrame(columns=df_nuevos.columns)
-                
+        df_viejos = pd.DataFrame(columns=df_nuevos.columns)                
     # Convierte la columna 'fecha' a tipo de datos datetime
     df_viejos['fecha'] = pd.to_datetime(df_viejos['fecha'])
     df_nuevos['fecha'] = pd.to_datetime(df_nuevos['fecha'])
@@ -45,8 +44,8 @@ def guardar_datos_csv(df_nuevos, nombre_archivo):
     # Actualiza la columna 'periodo' en el dataframe df_viejos
     df_viejos['periodo'] = df_viejos['fecha'].dt.month.map(meses)
 
-    # Elimina los registros de 7 días hacia atrás
-    limite_fecha = pd.Timestamp.now() - pd.Timedelta(days=120)
+    # Elimina los registros de 30 días hacia atrás
+    limite_fecha = pd.Timestamp.now() - pd.Timedelta(days=30)
     df_viejos = df_viejos[df_viejos['fecha'] < limite_fecha]
 
     # Agrega los nuevos registros obtenidos del SQL
@@ -73,15 +72,14 @@ def api_transactions():
     LEFT JOIN QRY_BRANCH_OFFICES
     ON api_transactions.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
     WHERE
-    api_transactions.created_at >= DATE(NOW()) - INTERVAL 120 DAY AND YEAR(api_transactions.created_at) = YEAR(curdate())
+    api_transactions.created_at >= DATE(NOW()) - INTERVAL 30 DAY AND YEAR(api_transactions.created_at) = YEAR(curdate())
     AND QRY_BRANCH_OFFICES.status_id = 15 AND cashiers.is_electronic_id = 1
     GROUP BY
     QRY_BRANCH_OFFICES.branch_office,
     api_transactions.folio,
     DATE_FORMAT(api_transactions.created_at,'%Y-%m-%d')
     ORDER BY DATE_FORMAT(api_transactions.created_at,'%Y-%m-%d')
-    """
-    
+    """    
     df_api_transactions = pd.read_sql(query, engine)    
     # Guardar el dataframe en un archivo CSV
     nombre_archivo = 'archivos/api_transactions.csv'
@@ -106,7 +104,7 @@ def dte_transactions():
     LEFT JOIN QRY_BRANCH_OFFICES
     ON dte_transactions.branch_office_id = QRY_BRANCH_OFFICES.branch_office_id
     WHERE
-    dte_transactions.created_at >= DATE(NOW()) - INTERVAL 120 DAY AND YEAR(dte_transactions.created_at) = YEAR(curdate())
+    dte_transactions.created_at >= DATE(NOW()) - INTERVAL 30 DAY AND YEAR(dte_transactions.created_at) = YEAR(curdate())
     AND QRY_BRANCH_OFFICES.status_id = 15 AND cashiers.is_electronic_id = 1
     GROUP BY
     QRY_BRANCH_OFFICES.branch_office,
@@ -129,8 +127,7 @@ def qry_branch_offices():
 
 def main(authenticated=True):
     if not authenticated:
-        raise Exception("No autenticado, Necesitas autenticarte primero")
-        
+        raise Exception("No autenticado, Necesitas autenticarte primero")        
     else:
         st.title("INFORME DE VENTAS X HORAS")
         df_dte_transactions = dte_transactions()
@@ -139,8 +136,11 @@ def main(authenticated=True):
 
         frames = [df_dte_transactions, df_api_transactions]
         result = pd.concat(frames)
-        
+              
+        st.title("Merge Venta X Hora")
         st.dataframe(result)
+        st.title("Sucursales")
+        st.dataframe(df_sucursales)
         
         
 
