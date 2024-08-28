@@ -6,9 +6,9 @@ import streamlit_shadcn_ui as ui
 # Conexión a la base de datos MySQL
 def connect_to_db():
     db_config = {
-        'host': '103.72.78.28',
-        'user': 'jysparki_jis',
-        'password': 'Jis2020!',
+        'host': '216.137.190.82',
+        'user': 'jysparki_admin',
+        'password': 'Admin2024$',
         'database': 'jysparki_jis'}
     engine = create_engine(f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}")
     return engine
