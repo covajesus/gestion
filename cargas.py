@@ -7,9 +7,9 @@ from mysql.connector import Error
 def get_db_connection():
     try:
         connection_params = {
-            'host': '103.72.78.28',
-            'user': 'jysparki_jis',
-            'password': 'Jis2020!',
+            'host': '216.137.190.82',
+            'user': 'jysparki_admin',
+            'password': 'admin2024$',
             'database': 'jysparki_jis',
             'charset': 'utf8',
             'collation': 'utf8_general_ci',
