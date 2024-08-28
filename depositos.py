@@ -8,7 +8,7 @@ def connect_to_db():
     db_config = {
         'host': '216.137.190.82',
         'user': 'jysparki_admin',
-        'password': 'Admin2024$',
+        'password': 'admin2024$',
         'database': 'jysparki_jis'}
     engine = create_engine(f"mysql+mysqlconnector://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}")
     return engine
