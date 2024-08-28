@@ -9,7 +9,7 @@ def get_db_connection():
         connection_params = {
             'host': '216.137.190.82',
             'user': 'jysparki_admin',
-            'password': 'admin2024$',
+            'password': 'Admin2024$',
             'database': 'jysparki_jis',
             'charset': 'utf8',
             'collation': 'utf8_general_ci',
