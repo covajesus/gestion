@@ -3,7 +3,7 @@ import requests
 import informe
 import dtes
 import depositos
-#import dotacion
+import dotacion
 import cargas
 
 
@@ -11,7 +11,7 @@ import cargas
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = None
 
-BASE_URL = 'https://apijis.com/login_users/token'
+BASE_URL = 'https://apijis.azurewebsites.net/login_users/token'
 
 def obtener_usuarios(rut, contrasena):
     headers = {
@@ -80,8 +80,8 @@ def main():
             elif menu_option == "Cargas":
                 cargas.main(authenticated=st.session_state.authenticated)
 
-            #elif menu_option == "Informe de dotaciones":
-            #    dotacion.main(authenticated=st.session_state.authenticated)
+            elif menu_option == "Informe de dotaciones":
+                dotacion.main(authenticated=st.session_state.authenticated)
 
         except Exception as e:
             st.success("Por favor inicia sesión primero")

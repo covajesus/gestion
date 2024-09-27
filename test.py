@@ -4,7 +4,7 @@ import requests
 import plotly.express as px
 
 
-BASE_EMPLOYEES = 'https://apijis.com/employees/full_details'
+BASE_EMPLOYEES = 'https://apijis.azurewebsites.net/employees/full_details'
 
 def obtener_employees():
     response = requests.get(BASE_EMPLOYEES)

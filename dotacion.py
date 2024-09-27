@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 import requests
 
-BASE_EMPLOYEES = 'https://apijis.com/employees/full_details'
+BASE_EMPLOYEES = 'https://apijis.azurewebsites.net/employees/full_details'
 
 
 def obtener_employees():
