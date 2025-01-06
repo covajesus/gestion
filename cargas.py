@@ -63,7 +63,7 @@ def update_kpi_ingresos_acumulado_act(conn):
             DM_PERIODO.`Año`,
             QRY_BRANCH_OFFICES.branch_office
         ORDER BY
-            QRY_INGRESOS_TOTALES_PBI.date ASC
+            QRY_INGRESOS_TOTALES_PBI.date ASC;
         """
         cursor = conn.cursor()
         cursor.execute(query)
