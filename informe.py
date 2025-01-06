@@ -132,10 +132,10 @@ def main(authenticated=False):
         df_sucursales = qry_branch_offices()
         suma_price_hour = df_sucursales['price_hour'].sum()
 
-        ### INGRESOS ACTUAL 2024
-        df_ingresos_2024 = df_total[(df_total["año"] == 2024)]
+        ### INGRESOS ACTUAL 2025
+        df_ingresos_2025 = df_total[(df_total["año"] == 2025)]
         columns_ingresos = ["periodo", "branch_office" , "ticket_number" , "Venta_Neta" , "Venta_SSS" , "Ingresos" ,"ppto" , "Ingresos_SSS" ]
-        df_ingresos_act = df_ingresos_2024[columns_ingresos]
+        df_ingresos_act = df_ingresos_2025[columns_ingresos]
     
         df_ingresos_act = df_ingresos_act.rename(columns={"ticket_number": "ticket_number_Act", 
                                             "Venta_Neta" : "Venta_Neta_Act" ,
@@ -143,10 +143,10 @@ def main(authenticated=False):
                                             "Ingresos" : "Ingresos_Act",
                                             "Ingresos_SSS" : "Ingresos_SSS_Act",
                                             "ppto" : "Presupuesto"})
-        ### INGRESOS ANTERIOR 2023
-        df_ingresos_2023 = df_total[(df_total["año"] == 2023)]
+        ### INGRESOS ANTERIOR 2024
+        df_ingresos_2024 = df_total[(df_total["año"] == 2024)]
         columns_ingresos = ["periodo", "branch_office" , "ticket_number" , "Venta_Neta" , "Venta_SSS" , "Ingresos" ,  "Ingresos_SSS" ]
-        df_ingresos_ant = df_ingresos_2023[columns_ingresos]  
+        df_ingresos_ant = df_ingresos_2024[columns_ingresos]  
             
         df_ingresos_ant = df_ingresos_ant.rename(columns={"ticket_number": "ticket_number_Ant", 
                                                 "Venta_Neta" : "Venta_Neta_Ant" ,
@@ -188,8 +188,8 @@ def main(authenticated=False):
 
         df_general = reemplazar_inf(df_general)
         df_inicial_display = df_general[columns_to_show_in_visualization].copy()    
-        periodos_2024_con_datos = df_total[df_total['año'] == 2024]['periodo'].unique()
-        ultimo_periodo = periodos_2024_con_datos[-1]
+        periodos_2025_con_datos = df_total[df_total['año'] == 2025]['periodo'].unique()
+        ultimo_periodo = periodos_2025_con_datos[-1]
         periodos_seleccionados_por_defecto = ultimo_periodo        
 
         st.sidebar.title('Filtros Disponibles')    
