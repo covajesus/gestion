@@ -43,7 +43,7 @@ def kpi_ingresos_mes():
     KPI_INGRESOS_IMG_MES.periodo, 
 	KPI_INGRESOS_IMG_MES.`año`, 
 	KPI_INGRESOS_IMG_MES.period, 
-	KPI_INGRESOS_IMG_MES.branch_office
+	KPI_INGRESOS_IMG_MES.branch_office;
     """
     df_ingresos = pd.read_sql(query, engine)
     return df_ingresos
