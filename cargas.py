@@ -23,7 +23,7 @@ def get_db_connection():
 
 def update_kpi_ingresos_acumulado_act(conn):
     try:        
-        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos'"
+        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2025' AND Periodo = 'Acumulado' and metrica = 'ingresos'"
         cursor = conn.cursor()
         cursor.execute(query)
         conn.commit()
@@ -77,7 +77,7 @@ def update_kpi_ingresos_acumulado_act(conn):
 
 def update_kpi_ingresos_acumulado_ant(conn):
     try:        
-        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2023' AND Periodo = 'Acumulado' and metrica = 'ingresos';"
+        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' AND Periodo = 'Acumulado' and metrica = 'ingresos';"
         cursor = conn.cursor()
         cursor.execute(query)
         conn.commit()
@@ -191,7 +191,7 @@ def update_kpi_ingresos_acumulado_ppto(conn):
 
 def update_kpi_ingresos_mes_act(conn):
     try:        
-        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' and metrica = 'ingresos' AND periodo != 'Acumulado'"
+        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2025' and metrica = 'ingresos' AND periodo != 'Acumulado'"
         cursor = conn.cursor()
         cursor.execute(query)
         conn.commit()
@@ -245,7 +245,7 @@ def update_kpi_ingresos_mes_act(conn):
 
 def update_kpi_ingresos_mes_ant(conn):
     try:        
-        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2023' and metrica = 'ingresos' AND periodo != 'Acumulado'"
+        query = "DELETE FROM KPI_INGRESOS_IMG_MES WHERE año = '2024' and metrica = 'ingresos' AND periodo != 'Acumulado'"
         cursor = conn.cursor()
         cursor.execute(query)
         conn.commit()
